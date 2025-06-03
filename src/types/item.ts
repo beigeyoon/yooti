@@ -2,43 +2,26 @@ export type ItemType = 'event' | 'todo' | 'routine' | 'deadline' | 'period';
 
 export type RepeatCycle = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
-export type Item =
-  | {
-      id: string;
-      title: string;
-      type: 'todo';
-      checked: boolean;
-      startDate?: string;
-      endDate?: string;
-      repeat?: RepeatCycle;
-      groups?: GroupLink[];
-      note?: string;
-      createdAt: string;
-    }
-  | {
-      id: string;
-      title: string;
-      type: Exclude<ItemType, 'todo'>;
-      startDate?: string;
-      endDate?: string;
-      repeat?: RepeatCycle;
-      groups?: GroupLink[];
-      note?: string;
-      createdAt: string;
-    };
+export interface Item {
+  id: string;
+  title: string;
+  type: ItemType;
+  startDate?: string;
+  endDate?: string;
+  repeat?: RepeatCycle;
+  groups?: GroupLink[];
+  note?: string;
+  checked?: boolean; // ✅ todo 전용
+  createdAt: string;
+}
 
 export type GroupType = 'flow' | 'related' | 'dependency' | 'custom';
 
-export type GroupLink =
-  | {
-      groupId: string;
-      type: 'flow';
-      order: number;
-    }
-  | {
-      groupId: string;
-      type: Exclude<GroupType, 'flow'>;
-    };
+export interface GroupLink {
+  groupId: string;
+  type: GroupType;
+  order?: number; // ✅ flow일 경우에만 의미 있음
+}
 
 export interface Group {
   id: string;
