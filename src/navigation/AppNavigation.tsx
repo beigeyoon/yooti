@@ -1,11 +1,11 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import CalendarScreen from '../screens/CalendarScreen';
-import TodayScreen from '../screens/TodayScreen';
-import ItemScreen from '../screens/ItemScreen';
-import GroupsScreen from '../screens/GroupsScreen';
-import GroupScreen from '../screens/GroupScreen';
-import SomedaysScreen from '../screens/SomedaysScreen';
+import CalendarScreen from '@/screens/CalendarScreen';
+import TodayScreen from '@/screens/TodayScreen';
+import ItemScreen from '@/screens/ItemScreen';
+import GroupsScreen from '@/screens/GroupsScreen';
+import GroupScreen from '@/screens/GroupScreen';
+import SomedaysScreen from '@/screens/SomedaysScreen';
 
 export type RootStackParamList = {
   Calendar: undefined;
