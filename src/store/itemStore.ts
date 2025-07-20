@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Item, Group } from '@/types/item';
-import { createItem, updateItem as applyUpdate } from '@/utils/itemUtils';
+import { createItem, createRepeatingItems, updateItem as applyUpdate } from '@/utils/itemUtils';
 import { saveToStorage, loadFromStorage } from '@/utils/storage';
 
 const STORAGE_KEY = 'yooti_store';
@@ -11,6 +11,8 @@ interface ItemState {
   addItem: (item: Omit<Item, 'id' | 'createdAt'>) => void;
   updateItem: (id: string, patch: Partial<Item>) => void;
   deleteItem: (id: string) => void;
+  deleteRoutineGroup: (routineGroupId: string) => void;
+  deleteAllItems: () => void;
   addGroup: (group: Group) => void;
   updateGroup: (id: string, patch: Partial<Group>) => void;
   deleteGroup: (id: string) => void;
@@ -22,8 +24,8 @@ export const useTimeStore = create<ItemState>((set, get) => ({
   groups: [],
 
   addItem: raw => {
-    const newItem = createItem(raw);
-    const updated = [...get().items, newItem];
+    const newItems = createRepeatingItems(raw);
+    const updated = [...get().items, ...newItems];
     saveToStorage(STORAGE_KEY, { items: updated, groups: get().groups });
     set({ items: updated });
   },
@@ -38,6 +40,17 @@ export const useTimeStore = create<ItemState>((set, get) => ({
     const updated = get().items.filter(item => item.id !== id);
     saveToStorage(STORAGE_KEY, { items: updated, groups: get().groups });
     set({ items: updated });
+  },
+
+  deleteRoutineGroup: (routineGroupId: string) => {
+    const updated = get().items.filter(item => item.routineGroupId !== routineGroupId);
+    saveToStorage(STORAGE_KEY, { items: updated, groups: get().groups });
+    set({ items: updated });
+  },
+
+  deleteAllItems: () => {
+    saveToStorage(STORAGE_KEY, { items: [], groups: get().groups });
+    set({ items: [] });
   },
 
   addGroup: group => {

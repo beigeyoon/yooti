@@ -8,7 +8,10 @@ export interface Item {
   type: ItemType;
   startDate?: string;
   endDate?: string;
+  startTime?: string; // 시작 시간 (HH:MM 형식)
+  endTime?: string; // 종료 시간 (HH:MM 형식)
   repeat?: RepeatCycle;
+  routineGroupId?: string; // 루틴 그룹 식별용
   groups?: GroupLink[];
   note?: string;
   checked?: boolean; // ✅ todo 전용
