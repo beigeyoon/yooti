@@ -5,13 +5,14 @@ import { View } from 'react-native';
 import GlobalHeader from './src/components/GlobalHeader';
 import CalendarScreen from './src/screens/CalendarScreen';
 import SomedaysScreen from './src/screens/SomedaysScreen';
+import GroupsScreen from './src/screens/GroupsScreen';
 import { useTimeStore } from './src/store/itemStore';
 
 export default function App() {
   const { load, deleteAllItems, items } = useTimeStore();
-  const [currentScreen, setCurrentScreen] = useState<'calendar' | 'today' | 'form' | 'somedays'>(
-    'calendar',
-  );
+  const [currentScreen, setCurrentScreen] = useState<
+    'calendar' | 'today' | 'form' | 'somedays' | 'groups'
+  >('calendar');
   const [screenTitle, setScreenTitle] = useState<string>('Yooti');
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<any>(null); // 수정할 아이템
@@ -21,6 +22,11 @@ export default function App() {
   }, [load]);
 
   const handleBack = () => {
+    if (currentScreen === 'groups') {
+      setCurrentScreen('calendar');
+      setScreenTitle('Yooti');
+      return;
+    }
     if (currentScreen === 'today') {
       setCurrentScreen('calendar');
       setScreenTitle('Yooti');
@@ -69,14 +75,22 @@ export default function App() {
     setScreenTitle('언젠가');
   };
 
+  const handleNavigateToGroups = () => {
+    setCurrentScreen('groups');
+    setScreenTitle('그룹 목록');
+  };
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <GlobalHeader
         title={screenTitle}
         onBack={currentScreen !== 'calendar' ? handleBack : undefined}
         onNavigateToSomeday={handleNavigateToSomedays}
+        onNavigateToGroups={handleNavigateToGroups}
       />
-      {currentScreen === 'somedays' ? (
+      {currentScreen === 'groups' ? (
+        <GroupsScreen />
+      ) : currentScreen === 'somedays' ? (
         <SomedaysScreen onEditItem={handleNavigateToEditForm} />
       ) : (
         <CalendarScreen

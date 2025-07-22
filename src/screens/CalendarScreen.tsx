@@ -3,11 +3,15 @@ import { View, Text, TouchableOpacity, ScrollView, Alert, Dimensions } from 'rea
 import { Ionicons } from '@expo/vector-icons';
 
 import ItemForm from '../components/Item/ItemForm';
-
 import DailyDetail from '../components/DailyDetail';
+import CalendarHeader from '../components/Calendar/CalendarHeader';
+import CalendarGrid from '../components/Calendar/CalendarGrid';
+import FloatingActionButton from '../components/Calendar/FloatingActionButton';
+// import GlobalHeader from '../components/GlobalHeader';
 import { Item } from '../types/item';
 import { useTimeStore } from '../store/itemStore';
-import { getCalendarItems, getTypeColor, getTypeLabel, getPeriodColor } from '../utils/itemUtils';
+import { getCalendarItems, getTypeLabel } from '../utils/itemUtils';
+import { getItemTypeColor as getTypeColor, getPeriodColor } from '../theme/colors';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
@@ -18,7 +22,7 @@ dayjs.extend(weekOfYear);
 const { width, height } = Dimensions.get('window');
 const AVAILABLE_HEIGHT = height - 56 - 25 - 2;
 const CELL_WIDTH = (width - 16) / 7;
-const CELL_HEIGHT = CELL_WIDTH * 1.2; // 가로:세로 비율 1:1.2
+const CELL_HEIGHT = CELL_WIDTH * 1.1; // 가로:세로 비율 1:1.1
 const CELL_SIZE = Math.min(CELL_WIDTH, AVAILABLE_HEIGHT / 4);
 
 interface CalendarScreenProps {
@@ -29,6 +33,7 @@ interface CalendarScreenProps {
   onNavigateToEditForm: (item: Item) => void;
   onBackToCalendar: () => void;
   editingItem: Item | null;
+  onNavigateToGroups?: () => void;
 }
 
 export default function CalendarScreen({
@@ -39,6 +44,7 @@ export default function CalendarScreen({
   onNavigateToEditForm,
   onBackToCalendar,
   editingItem,
+  onNavigateToGroups,
 }: CalendarScreenProps) {
   const { addItem, items, updateItem } = useTimeStore();
   const [currentDate, setCurrentDate] = useState(dayjs());
@@ -169,212 +175,6 @@ export default function CalendarScreen({
       });
   };
 
-  // 캘린더 헤더 (요일)
-  const renderCalendarHeader = () => {
-    const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
-    return (
-      <View style={{ flexDirection: 'row', marginBottom: 2 }}>
-        {weekdays.map((day, index) => (
-          <View
-            key={day}
-            style={{
-              width: CELL_WIDTH,
-              height: 25,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 12,
-                fontWeight: '600',
-                color: index === 0 ? '#ef4444' : index === 6 ? '#000000' : '#374151',
-              }}
-            >
-              {day}
-            </Text>
-          </View>
-        ))}
-      </View>
-    );
-  };
-
-  // 캘린더 셀
-  const renderCalendarCell = (date: dayjs.Dayjs) => {
-    const isCurrentMonth = date.month() === currentDate.month();
-    const isToday = date.isSame(dayjs(), 'day');
-    const isPastDate = date.isBefore(dayjs(), 'day');
-    const isSelected = selectedCalendarDate === date.format('YYYY-MM-DD');
-    const dateStr = date.format('YYYY-MM-DD');
-    const dateItems = getItemsForDate(date);
-    const periodItems = getPeriodItemsForDate(date);
-    const totalItems = dateItems.length + periodItems.length;
-
-    return (
-      <TouchableOpacity
-        key={date.format('YYYY-MM-DD')}
-        onPress={() => setSelectedCalendarDate(date.format('YYYY-MM-DD'))}
-        style={{
-          width: CELL_WIDTH,
-          height: CELL_HEIGHT,
-          borderWidth: 0.5,
-          borderColor: isSelected ? '#000000' : '#e5e7eb',
-          backgroundColor: isSelected ? '#f3f4f6' : isToday ? '#e5e7eb' : 'white',
-          paddingTop: 3,
-          paddingBottom: 3,
-          paddingLeft: 0,
-          paddingRight: 0,
-          opacity: isPastDate ? 0.5 : 1,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: isToday ? 'bold' : 'normal',
-            color: isCurrentMonth ? '#111827' : '#9ca3af',
-            textAlign: 'center',
-            marginBottom: 2,
-          }}
-        >
-          {date.date()}
-        </Text>
-
-        {/* 기간형 막대 표시 */}
-        {(() => {
-          const weekStart = date.startOf('week');
-          const weekSlots = getWeekPeriodSlots(weekStart);
-          const dateStr = date.format('YYYY-MM-DD');
-
-          // 현재 날짜에 표시할 슬롯들
-          const activeSlots = weekSlots.map(slot => {
-            if (!slot) return null;
-
-            // 해당 날짜에 이 아이템이 표시되어야 하는지 확인
-            if (slot.startDate === dateStr || slot.endDate === dateStr) return slot;
-            if (slot.startDate && slot.endDate) {
-              const start = dayjs(slot.startDate);
-              const end = dayjs(slot.endDate);
-              if (date.isBetween(start, end, 'day', '[]')) return slot;
-            }
-            return null;
-          });
-
-          if (activeSlots.every(slot => slot === null)) return null;
-
-          return (
-            <View style={{ marginBottom: 1 }}>
-              {activeSlots
-                .filter(slot => slot !== null)
-                .map((slot, index) => (
-                  <View
-                    key={slot!.id}
-                    style={{
-                      height: 3,
-                      backgroundColor: getPeriodColor(slot!.id, slot!.endDate, items),
-                      borderRadius: 0,
-                      marginVertical: 1,
-                      marginHorizontal: 0,
-                    }}
-                  />
-                ))}
-            </View>
-          );
-        })()}
-
-        {/* 다른 아이템들 표시 */}
-        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-          {dateItems
-            .sort((a, b) => {
-              // 우선순위: 마감일 > 이벤트 > 반복 > 할일
-              const priority = { deadline: 4, event: 3, routine: 2, todo: 1 };
-              const aPriority = priority[a.type as keyof typeof priority] || 0;
-              const bPriority = priority[b.type as keyof typeof priority] || 0;
-              return bPriority - aPriority; // 내림차순 정렬
-            })
-            .slice(0, 3)
-            .map(item => (
-              <View
-                key={item.id}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 1,
-                  paddingHorizontal: item.type === 'deadline' ? 0 : 2,
-                }}
-              >
-                {/* 마감일은 블록형, 나머지는 동그라미 */}
-                {item.type === 'deadline' ? (
-                  <View
-                    style={{
-                      backgroundColor: getTypeColor(item.type),
-                      paddingVertical: 1,
-                      marginHorizontal: 0,
-                      paddingHorizontal: 4,
-                      borderRadius: 0,
-                      flex: 1,
-                      marginTop: 1,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: 'white',
-                        fontSize: 8,
-                        fontWeight: '600',
-                      }}
-                      numberOfLines={1}
-                    >
-                      {item.title}
-                    </Text>
-                  </View>
-                ) : (
-                  <>
-                    <View
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: 3,
-                        backgroundColor: getTypeColor(item.type),
-                        marginRight: 4,
-                      }}
-                    />
-                    <Text
-                      style={{
-                        color: '#374151',
-                        fontSize: 8,
-                        fontWeight: '600',
-                        flex: 1,
-                        // 할일과 반복이 체크된 경우 취소선
-                        ...((item.type === 'todo' || item.type === 'routine') && item.checked
-                          ? {
-                              textDecorationLine: 'line-through',
-                              color: '#9ca3af',
-                            }
-                          : {}),
-                      }}
-                      numberOfLines={1}
-                    >
-                      {item.title}
-                    </Text>
-                  </>
-                )}
-              </View>
-            ))}
-          {totalItems > 3 && (
-            <Text
-              style={{
-                fontSize: 8,
-                color: '#6b7280',
-                textAlign: 'center',
-              }}
-            >
-              +{totalItems - 3}
-            </Text>
-          )}
-        </ScrollView>
-      </TouchableOpacity>
-    );
-  };
-
   // 아이템 생성/수정 폼 표시
   if (currentScreen === 'form') {
     return (
@@ -392,75 +192,35 @@ export default function CalendarScreen({
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
-      {/* 캘린더 네비게이션 */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          backgroundColor: 'white',
-          borderBottomWidth: 1,
-          borderBottomColor: '#e0e0e0',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => setCurrentDate(currentDate.subtract(1, 'month'))}
-          style={{ padding: 6 }}
-        >
-          <Ionicons name="chevron-back" size={22} color="#333" />
-        </TouchableOpacity>
-
-        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#333' }}>
-          {currentDate.format('YYYY년 M월')}
-        </Text>
-
-        <TouchableOpacity
-          onPress={() => setCurrentDate(currentDate.add(1, 'month'))}
-          style={{ padding: 6 }}
-        >
-          <Ionicons name="chevron-forward" size={22} color="#333" />
-        </TouchableOpacity>
-      </View>
-
+      {/* <GlobalHeader title="캘린더" onNavigateToGroups={onNavigateToGroups} /> */}
       {/* 캘린더 */}
       <View style={{ paddingHorizontal: 8 }}>
-        {renderCalendarHeader()}
-
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-          {calendarDays.map(date => renderCalendarCell(date))}
-        </View>
+        <CalendarHeader
+          currentDate={currentDate}
+          onPrevMonth={() => setCurrentDate(currentDate.subtract(1, 'month'))}
+          onNextMonth={() => setCurrentDate(currentDate.add(1, 'month'))}
+          CELL_WIDTH={CELL_WIDTH}
+        />
+        <CalendarGrid
+          calendarDays={calendarDays}
+          currentDate={currentDate}
+          selectedCalendarDate={selectedCalendarDate}
+          items={items}
+          getItemsForDate={getItemsForDate}
+          getPeriodItemsForDate={getPeriodItemsForDate}
+          getWeekPeriodSlots={getWeekPeriodSlots}
+          getTypeColor={getTypeColor}
+          getPeriodColor={getPeriodColor}
+          CELL_WIDTH={CELL_WIDTH}
+          CELL_HEIGHT={CELL_HEIGHT}
+          onSelectDate={setSelectedCalendarDate}
+        />
       </View>
 
       {/* DailyDetail 영역 */}
       <DailyDetail selectedDate={selectedCalendarDate} onEditItem={onNavigateToEditForm} />
 
-      {/* 플로팅 새 아이템 버튼 */}
-      <TouchableOpacity
-        onPress={() => onNavigateToForm(selectedCalendarDate || undefined)}
-        style={{
-          position: 'absolute',
-          right: 24,
-          bottom: 40,
-          backgroundColor: '#000000',
-          width: 60,
-          height: 60,
-          borderRadius: 30,
-          justifyContent: 'center',
-          alignItems: 'center',
-          elevation: 12,
-          shadowColor: '#000000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          borderWidth: 2,
-          borderColor: 'rgba(255, 255, 255, 0.2)',
-        }}
-        activeOpacity={0.8}
-      >
-        <Ionicons name="add" size={32} color="white" />
-      </TouchableOpacity>
+      <FloatingActionButton onPress={() => onNavigateToForm(selectedCalendarDate || undefined)} />
     </View>
   );
 }

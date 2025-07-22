@@ -9,8 +9,10 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { useTimeStore } from '../store/itemStore';
-import { getTypeColor, getTypeLabel } from '../utils/itemUtils';
+import { getTypeLabel } from '../utils/itemUtils';
+import { getItemTypeColor as getTypeColor } from '../theme/colors';
 import { Item } from '../types/item';
+import ItemCard from '../components/Item/ItemCard';
 
 const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 30;
@@ -20,7 +22,7 @@ interface SomedaysScreenProps {
 }
 
 export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
-  const { items, deleteItem, deleteRoutineGroup, updateItem } = useTimeStore();
+  const { items, groups, deleteItem, deleteRoutineGroup, updateItem } = useTimeStore();
 
   // 날짜가 설정되지 않은 아이템들 필터링 (Someday 아이템들)
   const somedayItems = items.filter(item => !item.startDate && !item.endDate);
@@ -81,159 +83,6 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
     }
   };
 
-  const SwipeableItem = ({ item }: { item: Item }) => {
-    const translateX = useSharedValue(0);
-
-    const gestureHandler = useAnimatedGestureHandler({
-      onStart: (_, context: any) => {
-        context.startX = translateX.value;
-      },
-      onActive: (event, context) => {
-        const newTranslateX = context.startX + event.translationX;
-        translateX.value = Math.min(0, Math.max(-120, newTranslateX));
-      },
-      onEnd: event => {
-        if (event.translationX < -SWIPE_THRESHOLD) {
-          translateX.value = -120;
-        } else {
-          translateX.value = 0;
-        }
-      },
-    });
-
-    const animatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: translateX.value }],
-      };
-    });
-
-    const actionButtonsStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateX: translateX.value + 120 }],
-        opacity: translateX.value < -10 ? 1 : 0,
-      };
-    });
-
-    return (
-      <View style={{ marginBottom: 8 }}>
-        {/* 액션 버튼들 (배경) */}
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              right: 0,
-              top: 0,
-              bottom: 0,
-              flexDirection: 'row',
-              width: 120,
-            },
-            actionButtonsStyle,
-          ]}
-        >
-          <TouchableOpacity
-            onPress={() => handleEdit(item)}
-            style={{
-              backgroundColor: 'transparent',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: 50,
-              height: '100%',
-            }}
-          >
-            <Ionicons name="create-outline" size={20} color="#6b7280" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleDelete(item)}
-            style={{
-              backgroundColor: 'transparent',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: 50,
-              height: '100%',
-            }}
-          >
-            <Ionicons name="trash-outline" size={20} color="#6b7280" />
-          </TouchableOpacity>
-        </Animated.View>
-
-        {/* 메인 아이템 컨텐츠 */}
-        <PanGestureHandler onGestureEvent={gestureHandler}>
-          <Animated.View
-            style={[
-              {
-                backgroundColor: 'white',
-                padding: 16,
-                borderRadius: 8,
-                borderLeftWidth: 4,
-                borderLeftColor: getTypeColor(item.type),
-                shadowColor: '#000',
-                shadowOffset: { width: 0, height: 1 },
-                shadowOpacity: 0.1,
-                shadowRadius: 2,
-                elevation: 2,
-              },
-              animatedStyle,
-            ]}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-              <View
-                style={{
-                  backgroundColor: getTypeColor(item.type),
-                  paddingHorizontal: 8,
-                  paddingVertical: 4,
-                  borderRadius: 12,
-                  marginRight: 8,
-                }}
-              >
-                <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>
-                  {getTypeLabel(item.type)}
-                </Text>
-              </View>
-              {item.checked && (
-                <View
-                  style={{
-                    backgroundColor: '#10b981',
-                    borderRadius: 12,
-                    paddingHorizontal: 8,
-                    paddingVertical: 4,
-                  }}
-                >
-                  <Text style={{ color: 'white', fontSize: 12, fontWeight: '600' }}>완료</Text>
-                </View>
-              )}
-            </View>
-
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: '600',
-                color: '#111827',
-                marginBottom: 4,
-                // 할일과 반복이 체크된 경우 취소선과 회색 처리
-                ...((item.type === 'todo' || item.type === 'routine') && item.checked
-                  ? {
-                      textDecorationLine: 'line-through',
-                      color: '#9ca3af',
-                    }
-                  : {}),
-              }}
-            >
-              {item.title}
-            </Text>
-
-            {item.note && (
-              <Text style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>{item.note}</Text>
-            )}
-
-            <Text style={{ fontSize: 12, color: '#9ca3af', marginTop: 8 }}>
-              생성일: {new Date(item.createdAt).toLocaleDateString('ko-KR')}
-            </Text>
-          </Animated.View>
-        </PanGestureHandler>
-      </View>
-    );
-  };
-
   const renderTypeSection = (type: string, items: any[]) => (
     <View key={type} style={{ marginBottom: 24 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
@@ -252,7 +101,16 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
         <Text style={{ fontSize: 14, color: '#6b7280', marginLeft: 8 }}>({items.length})</Text>
       </View>
       {items.map(item => (
-        <SwipeableItem key={item.id} item={item} />
+        <ItemCard
+          key={item.id}
+          item={item}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onToggleCheck={item.type === 'todo' || item.type === 'routine' ? handleEdit : undefined}
+          getItemColor={item => getTypeColor(item.type)}
+          groups={groups}
+          showCheckbox={false}
+        />
       ))}
     </View>
   );

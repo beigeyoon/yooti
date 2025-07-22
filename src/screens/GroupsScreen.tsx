@@ -1,9 +1,242 @@
-import { View, Text } from 'react-native';
+import { useTimeStore } from '../store/itemStore';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  TextInput,
+  Dimensions,
+} from 'react-native';
+import { useState } from 'react';
+import { PanGestureHandler } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  useAnimatedGestureHandler,
+} from 'react-native-reanimated';
+import { Ionicons } from '@expo/vector-icons';
+import type { GroupType } from '../types/item';
+import { COLORS } from '../theme/colors';
+import { Item } from '../types/item';
+import GroupSwipeableCard from '../components/Group/GroupSwipeableCard';
+import GroupEditModal from '../components/Group/GroupEditModal';
+import ItemCard from '../components/Item/ItemCard';
 
 export default function GroupsScreen() {
+  const { groups, items, deleteGroup, updateGroup } = useTimeStore();
+  const [editModal, setEditModal] = useState<null | {
+    id: string;
+    title: string;
+    description: string;
+    type: GroupType;
+  }>(null);
+
+  // 어떤 그룹이 펼쳐져 있는지 상태 관리
+  const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>([]);
+
+  // 그룹 카드 클릭 시 아코디언 토글
+  const handleToggleExpand = (groupId: string) => {
+    setExpandedGroupIds(prev =>
+      prev.includes(groupId) ? prev.filter(id => id !== groupId) : [...prev, groupId],
+    );
+  };
+
+  const handleDelete = (id: string) => {
+    Alert.alert('그룹 삭제', '정말로 이 그룹을 삭제하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      { text: '삭제', style: 'destructive', onPress: () => deleteGroup(id) },
+    ]);
+  };
+
+  const handleEdit = (group: {
+    id: string;
+    title: string;
+    description?: string;
+    type: GroupType;
+  }) => {
+    setEditModal({
+      id: group.id,
+      title: group.title,
+      description: group.description || '',
+      type: group.type,
+    });
+  };
+
+  const handleEditSave = () => {
+    if (!editModal) return;
+    updateGroup(editModal.id, {
+      title: editModal.title.trim(),
+      description: editModal.description.trim(),
+      type: editModal.type,
+    });
+    setEditModal(null);
+  };
+
+  const SWIPE_THRESHOLD = 30;
+
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ fontSize: 20 }}>🧩 Groups Screen</Text>
+    <View style={{ flex: 1, backgroundColor: COLORS.ui.background }}>
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {groups.length === 0 ? (
+          <Text
+            style={{
+              color: COLORS.ui.text.muted,
+              fontSize: 16,
+              textAlign: 'center',
+              marginTop: 40,
+            }}
+          >
+            아직 생성된 그룹이 없습니다.
+          </Text>
+        ) : (
+          groups.map(group => {
+            const itemCount = items.filter(item =>
+              item.groups?.some(g => g.groupId === group.id),
+            ).length;
+            const groupItems = items.filter(item => item.groups?.some(g => g.groupId === group.id));
+            const expanded = expandedGroupIds.includes(group.id);
+            return (
+              <GroupSwipeableCard
+                key={group.id}
+                group={group}
+                itemCount={itemCount}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                expanded={expanded}
+                onPress={() => handleToggleExpand(group.id)}
+              >
+                {groupItems.length === 0 ? (
+                  <Text
+                    style={{
+                      color: COLORS.ui.text.muted,
+                      fontSize: 14,
+                      textAlign: 'center',
+                      paddingVertical: 8,
+                    }}
+                  >
+                    이 그룹에 속한 아이템이 없습니다.
+                  </Text>
+                ) : (
+                  groupItems.map((item, idx) => (
+                    <View
+                      key={item.id}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'flex-start',
+                        backgroundColor: COLORS.ui.white,
+                        borderRadius: 8,
+                        paddingVertical: 10,
+                        paddingHorizontal: 12,
+                        marginBottom: idx === groupItems.length - 1 ? 0 : 8,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 1 },
+                        shadowOpacity: 0.06,
+                        shadowRadius: 2,
+                        elevation: 1,
+                      }}
+                    >
+                      {/* 타입별 아이콘 */}
+                      <Ionicons
+                        name={
+                          (() => {
+                            if (item.type === 'todo') return 'list-outline';
+                            if (item.type === 'routine') return 'repeat-outline';
+                            if (item.type === 'event') return 'time-outline';
+                            if (item.type === 'deadline') return 'alert-circle-outline';
+                            if (item.type === 'period') return 'calendar-outline';
+                            return 'ellipse-outline';
+                          })() as any
+                        }
+                        size={20}
+                        color={(() => {
+                          if (item.type === 'todo') return '#3b82f6';
+                          if (item.type === 'routine') return '#8b5cf6';
+                          if (item.type === 'event') return '#f97316';
+                          if (item.type === 'deadline') return '#ec4899';
+                          if (item.type === 'period') return '#06b6d4';
+                          return '#9ca3af';
+                        })()}
+                        style={{ marginRight: 10, marginTop: 2 }}
+                      />
+                      <View style={{ flex: 1 }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text
+                            style={{
+                              fontSize: 15,
+                              fontWeight: '600',
+                              color: '#111827',
+                              lineHeight: 22,
+                            }}
+                            numberOfLines={1}
+                          >
+                            {item.title}
+                          </Text>
+                          {/* 이벤트형: 타이틀 옆에 시간 */}
+                          {item.type === 'event' && (item.startTime || item.endTime) && (
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: '#6b7280',
+                                fontWeight: 'normal',
+                                lineHeight: 16,
+                                marginLeft: 5,
+                              }}
+                              numberOfLines={1}
+                            >
+                              {item.startTime && item.endTime
+                                ? `${item.startTime} - ${item.endTime}`
+                                : item.startTime
+                                  ? `${item.startTime}`
+                                  : `${item.endTime}`}
+                            </Text>
+                          )}
+                          {/* 기간형: 타이틀 옆에 기간 */}
+                          {item.type === 'period' && item.startDate && item.endDate && (
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: '#6b7280',
+                                fontWeight: 'normal',
+                                lineHeight: 16,
+                                marginLeft: 5,
+                              }}
+                              numberOfLines={1}
+                            >
+                              {item.startDate} ~ {item.endDate}
+                            </Text>
+                          )}
+                        </View>
+                        {item.note && (
+                          <Text
+                            style={{
+                              fontSize: 13,
+                              color: '#6b7280',
+                              marginTop: 2,
+                            }}
+                            numberOfLines={1}
+                          >
+                            {item.note}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  ))
+                )}
+              </GroupSwipeableCard>
+            );
+          })
+        )}
+      </ScrollView>
+      {/* 수정 모달 */}
+      <GroupEditModal
+        visible={!!editModal}
+        group={editModal}
+        onChange={patch => setEditModal(m => m && { ...m, ...patch })}
+        onClose={() => setEditModal(null)}
+        onSave={handleEditSave}
+      />
     </View>
   );
 }

@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Item, ItemType, RepeatCycle } from '../../types/item';
+import { useTimeStore } from '../../store/itemStore';
+import { Group, GroupType, GroupLink } from '../../types/item';
+import ItemFormGroupSelector from './ItemFormGroupSelector';
+import ItemFormFields from './ItemFormFields';
+import ItemFormFooter from './ItemFormFooter';
 
 interface ItemFormProps {
   onSubmit: (item: Omit<Item, 'id' | 'createdAt'>) => void;
@@ -43,6 +49,20 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
+  const { groups, addGroup } = useTimeStore();
+  // 여러 그룹 선택 및 타입/순서 지정
+  const [selectedGroups, setSelectedGroups] = useState<GroupLink[]>([]);
+  const [showNewGroup, setShowNewGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [newGroupDesc, setNewGroupDesc] = useState('');
+  const [newGroupType, setNewGroupType] = useState<GroupType>('related');
+
+  useEffect(() => {
+    if (editingItem?.groups) {
+      setSelectedGroups(editingItem.groups);
+    }
+  }, [editingItem]);
+
   // 타입이 변경될 때 적절한 날짜 설정
   useEffect(() => {
     if (presetDate && !editingItem) {
@@ -64,6 +84,9 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
       return;
     }
 
+    // GroupLink 생성 (선택된 그룹이 있을 때만)
+    const groupLinks = selectedGroups.length > 0 ? selectedGroups : undefined;
+
     if (editingItem) {
       // 수정 모드: 기존 아이템 업데이트
       const updatedItem: Item = {
@@ -77,6 +100,7 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         repeat,
         checked,
         note: note.trim() || undefined,
+        groups: groupLinks,
       };
       onSubmit(updatedItem as any);
     } else {
@@ -91,9 +115,54 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         repeat,
         checked,
         note: note.trim() || undefined,
+        groups: groupLinks,
       };
       onSubmit(itemData);
     }
+  };
+
+  // 그룹 선택/해제
+  const handleToggleGroup = (group: Group) => {
+    const exists = selectedGroups.find(g => g.groupId === group.id);
+    if (exists) {
+      setSelectedGroups(selectedGroups.filter(g => g.groupId !== group.id));
+    } else {
+      setSelectedGroups([...selectedGroups, { groupId: group.id, type: 'custom' as GroupType }]);
+    }
+  };
+
+  // 그룹 타입 변경
+  const handleChangeGroupType = (groupId: string, type: GroupType) => {
+    setSelectedGroups(
+      selectedGroups.map(g =>
+        g.groupId === groupId ? { ...g, type, order: type === 'flow' ? g.order : undefined } : g,
+      ),
+    );
+  };
+
+  // 그룹 순서 변경 (flow 타입일 때만)
+  const handleChangeGroupOrder = (groupId: string, order: number | undefined) => {
+    setSelectedGroups(selectedGroups.map(g => (g.groupId === groupId ? { ...g, order } : g)));
+  };
+
+  // 그룹 생성 핸들러
+  const handleCreateGroup = () => {
+    if (!newGroupName.trim()) {
+      Alert.alert('오류', '그룹명을 입력하세요');
+      return;
+    }
+    const newGroup: Group = {
+      id: Date.now().toString(),
+      title: newGroupName.trim(),
+      type: newGroupType,
+      description: newGroupDesc.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    addGroup(newGroup);
+    setSelectedGroups([...selectedGroups, { groupId: newGroup.id, type: newGroupType }]);
+    setShowNewGroup(false);
+    setNewGroupName('');
+    setNewGroupDesc('');
   };
 
   const formatDate = (date: Date) => {
@@ -125,458 +194,64 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-        <View style={{ padding: 16, gap: 24 }}>
-          {/* 제목 */}
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>제목</Text>
-            <TextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="아이템 제목을 입력하세요"
-              style={{
-                borderWidth: 1,
-                borderColor: '#d1d5db',
-                borderRadius: 8,
-                padding: 12,
-                fontSize: 16,
-                height: 48,
-                textAlignVertical: 'center',
-              }}
-            />
-          </View>
+    <KeyboardAwareScrollView
+      style={{ flex: 1, backgroundColor: 'white' }}
+      contentContainerStyle={{ padding: 16, gap: 24, paddingBottom: 32, flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
+      enableOnAndroid={true}
+      extraScrollHeight={20}
+      showsVerticalScrollIndicator={false}
+    >
+      <ItemFormFields
+        title={title}
+        setTitle={setTitle}
+        type={type}
+        setType={(v: string) => setType(v as ItemType)}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
+        repeat={repeat}
+        setRepeat={(v: string | undefined) => setRepeat(v as RepeatCycle | undefined)}
+        isSomeday={isSomeday}
+        setIsSomeday={setIsSomeday}
+        showStartDatePicker={showStartDatePicker}
+        setShowStartDatePicker={setShowStartDatePicker}
+        showEndDatePicker={showEndDatePicker}
+        setShowEndDatePicker={setShowEndDatePicker}
+        showStartTimePicker={showStartTimePicker}
+        setShowStartTimePicker={setShowStartTimePicker}
+        showEndTimePicker={showEndTimePicker}
+        setShowEndTimePicker={setShowEndTimePicker}
+        repeatCycles={repeatCycles}
+        itemTypes={itemTypes}
+        presetDate={presetDate}
+        note={note}
+        setNote={setNote}
+      />
 
-          {/* 타입 */}
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>타입</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {itemTypes.map(itemType => (
-                <TouchableOpacity
-                  key={itemType.value}
-                  onPress={() => setType(itemType.value)}
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                    borderWidth: 1,
-                    borderColor: type === itemType.value ? '#000000' : '#d1d5db',
-                    backgroundColor: type === itemType.value ? '#000000' : 'transparent',
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: type === itemType.value ? 'white' : '#374151',
-                    }}
-                  >
-                    {itemType.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+      {/* 그룹 할당 */}
+      <ItemFormGroupSelector
+        groups={groups}
+        selectedGroups={selectedGroups}
+        onToggleGroup={handleToggleGroup}
+        onChangeGroupType={handleChangeGroupType}
+        onChangeGroupOrder={handleChangeGroupOrder}
+        showNewGroup={showNewGroup}
+        setShowNewGroup={setShowNewGroup}
+        newGroupName={newGroupName}
+        setNewGroupName={setNewGroupName}
+        newGroupDesc={newGroupDesc}
+        setNewGroupDesc={setNewGroupDesc}
+        onCreateGroup={handleCreateGroup}
+      />
 
-          {/* 날짜 선택 */}
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>날짜 (선택)</Text>
-            <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 12 }}>
-              '언젠가'를 선택하면 날짜가 설정되지 않습니다.
-            </Text>
-
-            {/* 언젠가 체크박스 */}
-            <TouchableOpacity
-              onPress={() => {
-                setIsSomeday(!isSomeday);
-                if (!isSomeday) {
-                  // 언젠가로 설정할 때 날짜들 초기화
-                  setStartDate('');
-                  setEndDate('');
-                  setStartTime('');
-                  setEndTime('');
-                }
-              }}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 16,
-                paddingVertical: 8,
-              }}
-            >
-              <View
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 4,
-                  borderWidth: 2,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderColor: isSomeday ? '#000000' : '#d1d5db',
-                  backgroundColor: isSomeday ? '#000000' : 'transparent',
-                  marginRight: 12,
-                }}
-              >
-                {isSomeday && <Text style={{ color: 'white', fontSize: 12 }}>✓</Text>}
-              </View>
-              <Text style={{ fontSize: 16, color: '#374151' }}>언젠가 (Someday)</Text>
-            </TouchableOpacity>
-
-            {!isSomeday && type === 'todo' ? (
-              // 할 일: 완료 예정일만 표시
-              <View>
-                <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>완료 예정일</Text>
-                <TouchableOpacity
-                  onPress={() => setShowEndDatePicker(true)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                    borderRadius: 8,
-                    padding: 12,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, color: '#111827' }}>
-                    {endDate || '완료 예정일 선택'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : !isSomeday && type === 'event' ? (
-              // 이벤트: startDate, endDate 모두 optional
-              <View style={{ gap: 12 }}>
-                <View>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>시작일</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowStartDatePicker(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                      borderRadius: 8,
-                      padding: 12,
-                    }}
-                  >
-                    <Text style={{ fontSize: 16, color: '#111827' }}>
-                      {startDate || '시작일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                    종료일 (선택)
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => setShowEndDatePicker(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderRadius: 8,
-                      padding: 12,
-                      borderColor: !startDate ? '#e5e7eb' : '#d1d5db',
-                      backgroundColor: !startDate ? '#f9fafb' : 'white',
-                    }}
-                    disabled={!startDate}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: !startDate ? '#9ca3af' : '#111827',
-                      }}
-                    >
-                      {endDate || '종료일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* 시간 선택 (이벤트 전용) */}
-                <View style={{ gap: 12 }}>
-                  <View>
-                    <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                      시작 시간 (선택)
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setShowStartTimePicker(true)}
-                      style={{
-                        borderWidth: 1,
-                        borderColor: '#d1d5db',
-                        borderRadius: 8,
-                        padding: 12,
-                      }}
-                    >
-                      <Text style={{ fontSize: 16, color: '#111827' }}>
-                        {startTime || '시작 시간 선택'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  <View>
-                    <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                      종료 시간 (선택)
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setShowEndTimePicker(true)}
-                      style={{
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        padding: 12,
-                        borderColor: !startTime ? '#e5e7eb' : '#d1d5db',
-                        backgroundColor: !startTime ? '#f9fafb' : 'white',
-                      }}
-                      disabled={!startTime}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 16,
-                          color: !startTime ? '#9ca3af' : '#111827',
-                        }}
-                      >
-                        {endTime || '종료 시간 선택'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            ) : !isSomeday && type === 'routine' ? (
-              // 반복: startDate, endDate 모두 optional
-              <View style={{ gap: 12 }}>
-                <View>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>시작일</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowStartDatePicker(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                      borderRadius: 8,
-                      padding: 12,
-                    }}
-                  >
-                    <Text style={{ fontSize: 16, color: '#111827' }}>
-                      {startDate || '시작일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                    종료일 (선택)
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => setShowEndDatePicker(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderRadius: 8,
-                      padding: 12,
-                      borderColor: !startDate ? '#e5e7eb' : '#d1d5db',
-                      backgroundColor: !startDate ? '#f9fafb' : 'white',
-                    }}
-                    disabled={!startDate}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: !startDate ? '#9ca3af' : '#111827',
-                      }}
-                    >
-                      {endDate || '종료일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : !isSomeday && type === 'deadline' ? (
-              // 마감일: endDate만 표시
-              <View>
-                <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>마감일</Text>
-                <TouchableOpacity
-                  onPress={() => setShowEndDatePicker(true)}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                    borderRadius: 8,
-                    padding: 12,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, color: '#111827' }}>{endDate || '마감일 선택'}</Text>
-                </TouchableOpacity>
-              </View>
-            ) : !isSomeday && type === 'period' ? (
-              // 기간: startDate, endDate 모두 설정 가능
-              <View style={{ gap: 12 }}>
-                <View>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>시작일</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowStartDatePicker(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                      borderRadius: 8,
-                      padding: 12,
-                    }}
-                  >
-                    <Text style={{ fontSize: 16, color: '#111827' }}>
-                      {startDate || '시작일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                <View>
-                  <Text style={{ fontSize: 14, color: '#6b7280', marginBottom: 4 }}>
-                    종료일 (선택)
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => setShowEndDatePicker(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderRadius: 8,
-                      padding: 12,
-                      borderColor: !startDate ? '#e5e7eb' : '#d1d5db',
-                      backgroundColor: !startDate ? '#f9fafb' : 'white',
-                    }}
-                    disabled={!startDate}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: !startDate ? '#9ca3af' : '#111827',
-                      }}
-                    >
-                      {endDate || '종료일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            ) : null}
-          </View>
-
-          {/* 반복 (반복 전용) */}
-          {type === 'routine' && (
-            <View>
-              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>반복 (선택)</Text>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                <TouchableOpacity
-                  onPress={() => setRepeat(undefined)}
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 8,
-                    borderRadius: 20,
-                    borderWidth: 1,
-                    borderColor: !repeat ? '#000000' : '#d1d5db',
-                    backgroundColor: !repeat ? '#000000' : 'transparent',
-                  }}
-                >
-                  <Text style={{ color: !repeat ? 'white' : '#374151' }}>반복 안함</Text>
-                </TouchableOpacity>
-                {repeatCycles.map(cycle => (
-                  <TouchableOpacity
-                    key={cycle.value}
-                    onPress={() => setRepeat(cycle.value)}
-                    style={{
-                      paddingHorizontal: 16,
-                      paddingVertical: 8,
-                      borderRadius: 20,
-                      borderWidth: 1,
-                      borderColor: repeat === cycle.value ? '#000000' : '#d1d5db',
-                      backgroundColor: repeat === cycle.value ? '#000000' : 'transparent',
-                    }}
-                  >
-                    <Text style={{ color: repeat === cycle.value ? 'white' : '#374151' }}>
-                      {cycle.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* 완료 여부 (할 일 전용) */}
-          {type === 'todo' && (
-            <View>
-              <TouchableOpacity
-                onPress={() => setChecked(!checked)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 12,
-                }}
-              >
-                <View
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 12,
-                    borderWidth: 2,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderColor: checked ? '#000000' : '#d1d5db',
-                    backgroundColor: checked ? '#000000' : 'transparent',
-                  }}
-                >
-                  {checked && <Text style={{ color: 'white', fontSize: 14 }}>✓</Text>}
-                </View>
-                <Text style={{ fontSize: 18, fontWeight: '600' }}>완료 여부</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {/* 메모 */}
-          <View>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>메모 (선택)</Text>
-            <TextInput
-              value={note}
-              onChangeText={setNote}
-              placeholder="추가 메모를 입력하세요"
-              multiline
-              numberOfLines={4}
-              style={{
-                borderWidth: 1,
-                borderColor: '#d1d5db',
-                borderRadius: 8,
-                padding: 12,
-                fontSize: 16,
-                textAlignVertical: 'top',
-              }}
-            />
-          </View>
-        </View>
-      </ScrollView>
-
-      {/* 버튼 - 화면 하단에 고정 */}
-      <View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          backgroundColor: 'white',
-          borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
-          paddingHorizontal: 16,
-          paddingVertical: 16,
-          paddingBottom: 20, // 적절한 하단 여백
-        }}
-      >
-        <View style={{ flexDirection: 'row', gap: 12 }}>
-          <TouchableOpacity
-            onPress={onCancel}
-            style={{
-              flex: 1,
-              backgroundColor: '#d1d5db',
-              paddingVertical: 12,
-              borderRadius: 8,
-            }}
-          >
-            <Text style={{ textAlign: 'center', color: '#374151', fontWeight: '600' }}>취소</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={handleSubmit}
-            style={{
-              flex: 1,
-              backgroundColor: '#000000',
-              paddingVertical: 12,
-              borderRadius: 8,
-            }}
-          >
-            <Text style={{ textAlign: 'center', color: 'white', fontWeight: '600' }}>저장</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Date Pickers */}
+      <ItemFormFooter onCancel={onCancel} onSubmit={handleSubmit} isEditMode={!!editingItem} />
+      {/* Date/Time Pickers는 그대로 유지 */}
       <DateTimePickerModal
         isVisible={showStartDatePicker}
         mode="date"
@@ -589,8 +264,6 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         onConfirm={handleEndDateConfirm}
         onCancel={() => setShowEndDatePicker(false)}
       />
-
-      {/* Time Pickers */}
       <DateTimePickerModal
         isVisible={showStartTimePicker}
         mode="time"
@@ -603,6 +276,6 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         onConfirm={handleEndTimeConfirm}
         onCancel={() => setShowEndTimePicker(false)}
       />
-    </View>
+    </KeyboardAwareScrollView>
   );
 }

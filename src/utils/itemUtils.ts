@@ -15,11 +15,15 @@ export function createItem(raw: Omit<Item, 'id' | 'createdAt'>): Item {
   const id = generateId();
   const createdAt = new Date().toISOString();
 
+  // groups 필드가 undefined일 경우 undefined로, 배열일 경우 배열로 복사
+  const groups = raw.groups ? [...raw.groups] : undefined;
+
   return {
     ...raw,
     id,
     createdAt,
     checked: raw.type === 'todo' ? (raw.checked ?? false) : undefined,
+    groups,
   };
 }
 
@@ -79,6 +83,7 @@ export function createRepeatingItems(raw: Omit<Item, 'id' | 'createdAt'>): Item[
       startDate: currentDate.toISOString().split('T')[0],
       endDate: undefined, // 반복 아이템은 endDate를 설정하지 않음
       routineGroupId: routineGroupId,
+      groups: raw.groups ? [...raw.groups] : undefined,
     };
 
     console.log(`Creating routine item ${occurrenceCount + 1}:`, itemData.startDate);
@@ -262,100 +267,13 @@ export function groupPeriodItems(items: Item[]): Item[][] {
   return groups;
 }
 
-// 타입별 색상 (밝고 흐린 느낌)
-export function getTypeColor(type: string): string {
-  switch (type) {
-    case 'todo':
-      return '#10b981'; // emerald-500 (밝은 초록색)
-    case 'event':
-      return '#6b7280'; // gray-500 (중간 회색)
-    case 'routine':
-      return '#f59e0b'; // amber-500 (밝은 주황색)
-    case 'deadline':
-      return '#ef4444'; // red-500 (밝은 빨간색)
-    case 'period':
-      return '#3b82f6'; // blue-500 (밝은 파란색)
-    default:
-      return '#6b7280';
-  }
-}
-
-// 기간형 아이템 색상 테마 (블루 계열 5가지 색상 순환)
-const PERIOD_COLORS = [
-  '#3b82f6', // blue
-  '#06b6d4', // cyan
-  '#0ea5e9', // sky blue
-  '#0891b2', // teal
-  '#0284c7', // light blue
-];
-
-// 기간형 아이템의 색상 할당 관리
-let periodColorUsage: { [color: string]: string | null } = {};
-
-// 기간형 아이템에 색상 할당
-export function assignPeriodColor(itemId: string, endDate?: string, allItems?: Item[]): string {
-  // 기존에 할당된 색상이 있으면 반환
-  if (periodColorUsage[itemId]) {
-    return periodColorUsage[itemId]!;
-  }
-
-  // 현재 날짜
-  const now = new Date();
-
-  // 사용 가능한 색상 찾기 (기간이 끝났거나 사용되지 않은 색상)
-  let availableColor = null;
-
-  for (const color of PERIOD_COLORS) {
-    const assignedItemId = periodColorUsage[color];
-
-    // 색상이 사용되지 않았으면 사용 가능
-    if (!assignedItemId) {
-      availableColor = color;
-      break;
-    }
-
-    // 할당된 아이템의 기간이 끝났는지 확인
-    if (allItems) {
-      const assignedItem = allItems.find(item => item.id === assignedItemId);
-      if (assignedItem && assignedItem.endDate) {
-        const itemEndDate = new Date(assignedItem.endDate);
-        if (itemEndDate < now) {
-          // 기간이 끝났으므로 색상 해제
-          delete periodColorUsage[color];
-          availableColor = color;
-          break;
-        }
-      }
-    }
-  }
-
-  // 사용 가능한 색상이 없으면 첫 번째 색상 사용
-  if (!availableColor) {
-    availableColor = PERIOD_COLORS[0];
-    // 기존 할당 해제
-    delete periodColorUsage[availableColor];
-  }
-
-  // 색상 할당
-  periodColorUsage[availableColor] = itemId;
-  periodColorUsage[itemId] = availableColor;
-
-  return availableColor;
-}
-
-// 기간형 아이템 색상 가져오기
-export function getPeriodColor(itemId: string, endDate?: string, allItems?: Item[]): string {
-  return assignPeriodColor(itemId, endDate, allItems);
-}
-
-// 기간형 아이템 색상 해제 (아이템 삭제 시)
-export function releasePeriodColor(itemId: string): void {
-  const color = periodColorUsage[itemId];
-  if (color) {
-    delete periodColorUsage[color];
-    delete periodColorUsage[itemId];
-  }
-}
+// 색상 관련 함수들은 theme/colors.ts로 이동했습니다
+// 기존 함수명을 유지하기 위한 래퍼 함수들
+export {
+  getItemTypeColor as getTypeColor,
+  getPeriodColor,
+  releasePeriodColor,
+} from '../theme/colors';
 
 // 타입별 라벨
 export function getTypeLabel(type: string): string {

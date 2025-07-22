@@ -6,9 +6,15 @@ interface GlobalHeaderProps {
   title?: string;
   onBack?: () => void;
   onNavigateToSomeday?: () => void;
+  onNavigateToGroups?: () => void;
 }
 
-export default function GlobalHeader({ title, onBack, onNavigateToSomeday }: GlobalHeaderProps) {
+export default function GlobalHeader({
+  title,
+  onBack,
+  onNavigateToSomeday,
+  onNavigateToGroups,
+}: GlobalHeaderProps) {
   const [menuVisible, setMenuVisible] = useState(false);
 
   return (
@@ -82,7 +88,11 @@ export default function GlobalHeader({ title, onBack, onNavigateToSomeday }: Glo
               style={{ paddingVertical: 12, paddingHorizontal: 16 }}
               onPress={() => {
                 setMenuVisible(false);
-                Alert.alert('Groups', 'Groups 기능이 곧 추가됩니다.');
+                if (onNavigateToGroups) {
+                  onNavigateToGroups();
+                } else {
+                  Alert.alert('Groups', 'Groups 기능이 곧 추가됩니다.');
+                }
               }}
             >
               <Text style={{ fontSize: 16, color: '#333' }}>Groups</Text>

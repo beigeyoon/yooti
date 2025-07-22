@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Item, Group } from '@/types/item';
-import { createItem, createRepeatingItems, updateItem as applyUpdate } from '@/utils/itemUtils';
+import { createRepeatingItems, updateItem as applyUpdate } from '@/utils/itemUtils';
 import { saveToStorage, loadFromStorage } from '@/utils/storage';
 
 const STORAGE_KEY = 'yooti_store';

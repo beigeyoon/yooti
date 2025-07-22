@@ -1,0 +1,57 @@
+import React from 'react';
+import { View } from 'react-native';
+import dayjs from 'dayjs';
+import { Item } from '../../types/item';
+import CalendarCell from './CalendarCell';
+
+interface CalendarGridProps {
+  calendarDays: dayjs.Dayjs[];
+  currentDate: dayjs.Dayjs;
+  selectedCalendarDate: string | null;
+  items: Item[];
+  getItemsForDate: (date: dayjs.Dayjs) => Item[];
+  getPeriodItemsForDate: (date: dayjs.Dayjs) => Item[];
+  getWeekPeriodSlots: (weekStart: dayjs.Dayjs) => (Item | null)[];
+  getTypeColor: (type: string) => string;
+  getPeriodColor: (id: string, endDate?: string, items?: Item[]) => string;
+  CELL_WIDTH: number;
+  CELL_HEIGHT: number;
+  onSelectDate: (date: string) => void;
+}
+
+export default function CalendarGrid({
+  calendarDays,
+  currentDate,
+  selectedCalendarDate,
+  items,
+  getItemsForDate,
+  getPeriodItemsForDate,
+  getWeekPeriodSlots,
+  getTypeColor,
+  getPeriodColor,
+  CELL_WIDTH,
+  CELL_HEIGHT,
+  onSelectDate,
+}: CalendarGridProps) {
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+      {calendarDays.map(date => (
+        <CalendarCell
+          key={date.format('YYYY-MM-DD')}
+          date={date}
+          currentDate={currentDate}
+          selectedCalendarDate={selectedCalendarDate}
+          items={items}
+          getItemsForDate={getItemsForDate}
+          getPeriodItemsForDate={getPeriodItemsForDate}
+          getWeekPeriodSlots={getWeekPeriodSlots}
+          getTypeColor={getTypeColor}
+          getPeriodColor={getPeriodColor}
+          CELL_WIDTH={CELL_WIDTH}
+          CELL_HEIGHT={CELL_HEIGHT}
+          onSelectDate={onSelectDate}
+        />
+      ))}
+    </View>
+  );
+}
