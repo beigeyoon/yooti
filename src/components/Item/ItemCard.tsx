@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
-import { Ionicons } from '@expo/vector-icons';
+import ItemCardCheckbox from './ItemCardCheckbox';
+import ItemCardIcon from './ItemCardIcon';
+import ItemCardGroups from './ItemCardGroups';
 import { Item, Group } from '../../types/item';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ItemCardProps {
   item: Item;
@@ -88,49 +91,16 @@ export default function ItemCard({
         {item.type === 'todo' || item.type === 'routine' ? (
           <>
             {onToggleCheck && showCheckbox && (
-              <TouchableOpacity
+              <ItemCardCheckbox
+                checked={!!item.checked}
+                color={getItemColor(item)}
                 onPress={() => onToggleCheck(item)}
-                style={{
-                  marginRight: 10,
-                  width: 20,
-                  height: 20,
-                  borderRadius: 4,
-                  borderWidth: 2,
-                  borderColor: item.checked ? getItemColor(item) : '#d1d5db',
-                  backgroundColor: item.checked ? getItemColor(item) : 'transparent',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                {item.checked && <Ionicons name="checkmark" size={14} color="white" />}
-              </TouchableOpacity>
+              />
             )}
-            <Ionicons
-              name={item.type === 'todo' ? 'list-outline' : 'repeat-outline'}
-              size={20}
-              color={item.type === 'todo' ? '#3b82f6' : '#8b5cf6'}
-              style={{ marginRight: 10 }}
-            />
+            <ItemCardIcon type={item.type} checked={!!item.checked} />
           </>
         ) : (
-          <Ionicons
-            name={
-              (() => {
-                if (item.type === 'event') return 'time-outline'; // 이벤트형: 시계 아이콘
-                if (item.type === 'deadline') return 'alert-circle-outline';
-                if (item.type === 'period') return 'calendar-outline'; // 기간형: 더 직관적인 달력 아이콘
-                return 'ellipse-outline';
-              })() as any
-            }
-            size={20}
-            color={(() => {
-              if (item.type === 'event') return '#f97316'; // orange
-              if (item.type === 'deadline') return '#ec4899'; // pink
-              if (item.type === 'period') return '#06b6d4'; // mint
-              return '#9ca3af';
-            })()}
-            style={{ marginRight: 10 }}
-          />
+          <ItemCardIcon type={item.type} />
         )}
 
         {/* 제목/내용 */}
@@ -193,67 +163,7 @@ export default function ItemCard({
             )}
           </View>
           {/* 그룹명 칩 (우측 끝 정렬) */}
-          {item.groups && item.groups.length > 0 && (
-            <View
-              style={{
-                flexDirection: 'row',
-                gap: 4,
-                marginLeft: 8,
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-              }}
-            >
-              {item.groups.slice(0, 2).map((g, idx) => {
-                const groupName = (groups || []).find(gr => gr.id === g.groupId)?.title || '그룹';
-                return (
-                  <View
-                    key={g.groupId}
-                    style={{
-                      backgroundColor: '#e0e7ef',
-                      paddingHorizontal: 6,
-                      paddingVertical: 2,
-                      borderRadius: 8,
-                      minWidth: 24,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: '#374151',
-                        fontSize: 10,
-                        lineHeight: 14,
-                        textAlignVertical: 'center',
-                      }}
-                      numberOfLines={1}
-                    >
-                      {groupName}
-                    </Text>
-                  </View>
-                );
-              })}
-              {item.groups.length > 2 && (
-                <View
-                  style={{
-                    backgroundColor: '#e0e7ef',
-                    paddingHorizontal: 6,
-                    paddingVertical: 2,
-                    borderRadius: 8,
-                    minWidth: 24,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: '#374151',
-                      fontSize: 10,
-                      lineHeight: 14,
-                      textAlignVertical: 'center',
-                    }}
-                  >
-                    +{item.groups.length - 2}
-                  </Text>
-                </View>
-              )}
-            </View>
-          )}
+          <ItemCardGroups itemGroups={item.groups} allGroups={groups} />
           {item.note && (
             <Text
               style={{

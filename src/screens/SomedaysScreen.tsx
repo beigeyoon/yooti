@@ -1,18 +1,12 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedGestureHandler,
-  runOnJS,
-} from 'react-native-reanimated';
+import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { useTimeStore } from '../store/itemStore';
 import { getTypeLabel } from '../utils/itemUtils';
 import { getItemTypeColor as getTypeColor } from '../theme/colors';
 import { Item } from '../types/item';
 import ItemCard from '../components/Item/ItemCard';
+import { useItemActions } from '../components/Item/useItemActions';
+import { Ionicons } from '@expo/vector-icons';
 
 const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 30;
@@ -39,49 +33,7 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
     {} as Record<string, typeof items>,
   );
 
-  const handleEdit = (item: Item) => {
-    if (onEditItem) {
-      onEditItem(item);
-    }
-  };
-
-  const handleDelete = (item: Item) => {
-    // 반복 아이템인 경우 선택 옵션 제공
-    if (item.type === 'routine' && item.routineGroupId) {
-      Alert.alert('반복 아이템 삭제', `"${item.title}"을(를) 삭제하시겠습니까?`, [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '이 날짜만',
-          style: 'default',
-          onPress: () => {
-            deleteItem(item.id);
-            Alert.alert('완료', '아이템이 삭제되었습니다.');
-          },
-        },
-        {
-          text: '전체 삭제',
-          style: 'destructive',
-          onPress: () => {
-            deleteRoutineGroup(item.routineGroupId!);
-            Alert.alert('완료', '반복 아이템 전체가 삭제되었습니다.');
-          },
-        },
-      ]);
-    } else {
-      // 일반 아이템은 기존 로직
-      Alert.alert('아이템 삭제', `"${item.title}"을(를) 삭제하시겠습니까?`, [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '삭제',
-          style: 'destructive',
-          onPress: () => {
-            deleteItem(item.id);
-            Alert.alert('완료', '아이템이 삭제되었습니다.');
-          },
-        },
-      ]);
-    }
-  };
+  const { handleDelete, handleToggleCheck, handleEdit } = useItemActions(onEditItem);
 
   const renderTypeSection = (type: string, items: any[]) => (
     <View key={type} style={{ marginBottom: 24 }}>
