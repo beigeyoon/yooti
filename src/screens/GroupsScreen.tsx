@@ -24,8 +24,15 @@ import GroupSwipeableCard from '../components/Group/GroupSwipeableCard';
 import GroupEditModal from '../components/Group/GroupEditModal';
 import ItemCard from '../components/Item/ItemCard';
 
+const GROUP_TYPE_OPTIONS = [
+  { value: 'flow', label: '순서형' },
+  { value: 'related', label: '연관형' },
+  { value: 'dependency', label: '의존형' },
+  { value: 'custom', label: '커스텀' },
+];
+
 export default function GroupsScreen() {
-  const { groups, items, deleteGroup, updateGroup } = useTimeStore();
+  const { groups, items, deleteGroup, updateGroup, addGroup } = useTimeStore();
   const [editModal, setEditModal] = useState<null | {
     id: string;
     title: string;
@@ -35,6 +42,31 @@ export default function GroupsScreen() {
 
   // 어떤 그룹이 펼쳐져 있는지 상태 관리
   const [expandedGroupIds, setExpandedGroupIds] = useState<string[]>([]);
+
+  // 새 그룹 생성 모달 상태
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+  const [newGroup, setNewGroup] = useState({
+    title: '',
+    description: '',
+    type: 'custom' as GroupType,
+  });
+
+  const handleCreateGroup = () => {
+    if (!newGroup.title.trim()) {
+      Alert.alert('오류', '그룹명을 입력하세요');
+      return;
+    }
+    const group = {
+      id: Date.now().toString(),
+      title: newGroup.title.trim(),
+      type: newGroup.type,
+      description: newGroup.description.trim(),
+      createdAt: new Date().toISOString(),
+    };
+    addGroup(group);
+    setNewGroup({ title: '', description: '', type: 'custom' });
+    setCreateModalVisible(false);
+  };
 
   // 그룹 카드 클릭 시 아코디언 토글
   const handleToggleExpand = (groupId: string) => {
@@ -78,6 +110,26 @@ export default function GroupsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.ui.background }}>
+      {/* 상단 새 그룹 만들기 버튼 */}
+      <View style={{ padding: 16, paddingBottom: 0 }}>
+        <TouchableOpacity
+          onPress={() => setCreateModalVisible(true)}
+          style={{
+            marginBottom: 0,
+            paddingVertical: 6,
+            paddingHorizontal: 12,
+            borderRadius: 8,
+            borderWidth: 1,
+            borderColor: '#d1d5db',
+            backgroundColor: '#f3f4f6',
+            alignSelf: 'flex-start',
+          }}
+        >
+          <Text style={{ color: '#374151', fontWeight: '600', fontSize: 15 }}>
+            + 새 그룹 만들기
+          </Text>
+        </TouchableOpacity>
+      </View>
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {groups.length === 0 ? (
           <Text
@@ -235,7 +287,16 @@ export default function GroupsScreen() {
         group={editModal}
         onChange={patch => setEditModal(m => m && { ...m, ...patch })}
         onClose={() => setEditModal(null)}
-        onSave={handleEditSave}
+        onSubmit={handleEditSave}
+      />
+      {/* 새 그룹 생성 모달 */}
+      <GroupEditModal
+        visible={createModalVisible}
+        group={newGroup}
+        isCreate
+        onChange={patch => setNewGroup(prev => ({ ...prev, ...patch }))}
+        onClose={() => setCreateModalVisible(false)}
+        onSubmit={handleCreateGroup}
       />
     </View>
   );

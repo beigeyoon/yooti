@@ -54,6 +54,13 @@ export default function GroupSwipeableCard({
     opacity: translateX.value < -10 ? 1 : 0,
   }));
 
+  const GROUP_TYPE_LABELS: Record<string, string> = {
+    flow: '순서형',
+    related: '연관형',
+    dependency: '의존형',
+    custom: '커스텀',
+  };
+
   return (
     <View style={{ marginBottom: 12 }}>
       {/* 액션 버튼들 (배경) */}
@@ -149,15 +156,29 @@ export default function GroupSwipeableCard({
                     </Text>
                   )}
                   <View style={{ flexDirection: 'row', gap: 12, marginTop: 6 }}>
-                    <Text
-                      style={{
-                        color: (COLORS.itemTypes as any)[group.type] || COLORS.ui.text.secondary,
-                        fontSize: 13,
-                        fontWeight: '500',
-                      }}
-                    >
-                      타입: {group.type}
-                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                      <View
+                        style={{
+                          backgroundColor: '#f3f4f6',
+                          borderColor: (COLORS.itemTypes as any)[group.type] || '#d1d5db',
+                          borderWidth: 1,
+                          borderRadius: 10,
+                          paddingHorizontal: 8,
+                          paddingVertical: 2,
+                          marginRight: 2,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            color: (COLORS.itemTypes as any)[group.type] || '#374151',
+                            fontSize: 12,
+                            fontWeight: '500',
+                          }}
+                        >
+                          {GROUP_TYPE_LABELS[group.type] || group.type}
+                        </Text>
+                      </View>
+                    </View>
                     <Text style={{ color: COLORS.ui.text.muted, fontSize: 13 }}>
                       생성: {group.createdAt.slice(0, 10)}
                     </Text>

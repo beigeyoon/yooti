@@ -232,6 +232,8 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         presetDate={presetDate}
         note={note}
         setNote={setNote}
+        checked={checked}
+        setChecked={setChecked}
       />
 
       {/* 그룹 할당 */}

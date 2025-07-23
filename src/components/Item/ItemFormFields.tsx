@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ItemFormFieldsProps {
   title: string;
@@ -31,6 +32,8 @@ interface ItemFormFieldsProps {
   presetDate?: string;
   note: string;
   setNote: (v: string) => void;
+  checked: boolean;
+  setChecked: (v: boolean) => void;
 }
 
 export default function ItemFormFields(props: ItemFormFieldsProps) {
@@ -40,7 +43,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
     <View>
       {/* 제목 */}
       <View>
-        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>제목</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+          제목
+        </Text>
         <TextInput
           value={props.title}
           onChangeText={props.setTitle}
@@ -58,7 +63,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
       </View>
       {/* 타입 선택 */}
       <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>타입</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+          타입
+        </Text>
         <View style={{ flexDirection: 'row', gap: 8 }}>
           {props.itemTypes.map(opt => (
             <TouchableOpacity
@@ -80,105 +87,312 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
           ))}
         </View>
       </View>
-      {/* 날짜 선택 */}
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>날짜</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
-            onPress={() => props.setShowStartDatePicker(true)}
-            style={{
-              flex: 1,
-              backgroundColor: '#f3f4f6',
-              padding: 10,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: '#d1d5db',
-            }}
-          >
-            <Text style={{ color: '#374151', textAlign: 'center' }}>
-              {props.startDate || '시작일 선택'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => props.setShowEndDatePicker(true)}
-            style={{
-              flex: 1,
-              backgroundColor: '#f3f4f6',
-              padding: 10,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: '#d1d5db',
-            }}
-          >
-            <Text style={{ color: '#374151', textAlign: 'center' }}>
-              {props.endDate || '종료일 선택'}
-            </Text>
-          </TouchableOpacity>
+      {/* 언젠가(날짜 미정) 체크박스 */}
+      <TouchableOpacity
+        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, marginBottom: 0 }}
+        onPress={() => props.setIsSomeday(!props.isSomeday)}
+        activeOpacity={0.7}
+      >
+        <View
+          style={{
+            width: 20,
+            height: 20,
+            borderRadius: 4,
+            borderWidth: 2,
+            borderColor: props.isSomeday ? '#111827' : '#d1d5db',
+            backgroundColor: props.isSomeday ? '#111827' : 'transparent',
+            marginRight: 8,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {props.isSomeday && <Ionicons name="checkmark" size={14} color="white" />}
         </View>
-      </View>
-      {/* 시간 선택 */}
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>시간</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
-            onPress={() => props.setShowStartTimePicker(true)}
-            style={{
-              flex: 1,
-              backgroundColor: '#f3f4f6',
-              padding: 10,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: '#d1d5db',
-            }}
-          >
-            <Text style={{ color: '#374151', textAlign: 'center' }}>
-              {props.startTime || '시작시간'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => props.setShowEndTimePicker(true)}
-            style={{
-              flex: 1,
-              backgroundColor: '#f3f4f6',
-              padding: 10,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: '#d1d5db',
-            }}
-          >
-            <Text style={{ color: '#374151', textAlign: 'center' }}>
-              {props.endTime || '종료시간'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      {/* 반복 선택 */}
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>반복</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          {props.repeatCycles.map(opt => (
-            <TouchableOpacity
-              key={opt.value}
-              onPress={() => props.setRepeat(opt.value)}
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: props.repeat === opt.value ? '#000' : '#d1d5db',
-                backgroundColor: props.repeat === opt.value ? '#000' : 'white',
-              }}
-            >
-              <Text style={{ color: props.repeat === opt.value ? 'white' : '#374151' }}>
-                {opt.label}
+        <Text style={{ fontSize: 15, color: '#374151', fontWeight: '500' }}>언젠가(날짜 미정)</Text>
+      </TouchableOpacity>
+      {/* 날짜/시간 선택: 타입별 조건부 렌더링 */}
+      {/* 할일: 날짜/시간 모두 숨김 */}
+      {/* 반복: 날짜만, 시간 숨김 */}
+      {/* 기간: 날짜만, 시간 숨김 */}
+      {/* 마감일: 시작일/종료일 중 실제로 쓰이는 필드만, 시간 숨김 */}
+      {/* 이벤트: 날짜/시간 모두 노출 */}
+      {!props.isSomeday && (
+        <>
+          {props.type === 'event' && (
+            <>
+              {/* 날짜 선택 */}
+              <View style={{ marginTop: 20 }}>
+                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+                  날짜
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => props.setShowStartDatePicker(true)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#f3f4f6',
+                      padding: 10,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: '#d1d5db',
+                    }}
+                  >
+                    <Text style={{ color: '#374151', textAlign: 'center' }}>
+                      {props.startDate || '시작일 선택'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => props.setShowEndDatePicker(true)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#f3f4f6',
+                      padding: 10,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: '#d1d5db',
+                    }}
+                  >
+                    <Text style={{ color: '#374151', textAlign: 'center' }}>
+                      {props.endDate || '종료일 선택'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              {/* 시간 선택 */}
+              <View style={{ marginTop: 20 }}>
+                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+                  시간
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => props.setShowStartTimePicker(true)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#f3f4f6',
+                      padding: 10,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: '#d1d5db',
+                    }}
+                  >
+                    <Text style={{ color: '#374151', textAlign: 'center' }}>
+                      {props.startTime || '시작시간'}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => props.setShowEndTimePicker(true)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#f3f4f6',
+                      padding: 10,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: '#d1d5db',
+                    }}
+                  >
+                    <Text style={{ color: '#374151', textAlign: 'center' }}>
+                      {props.endTime || '종료시간'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </>
+          )}
+          {props.type === 'routine' && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+                날짜
               </Text>
-            </TouchableOpacity>
-          ))}
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => props.setShowStartDatePicker(true)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#f3f4f6',
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#d1d5db',
+                  }}
+                >
+                  <Text style={{ color: '#374151', textAlign: 'center' }}>
+                    {props.startDate || '시작일 선택'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => props.setShowEndDatePicker(true)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#f3f4f6',
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#d1d5db',
+                  }}
+                >
+                  <Text style={{ color: '#374151', textAlign: 'center' }}>
+                    {props.endDate || '종료일 선택'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {props.type === 'period' && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+                날짜
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => props.setShowStartDatePicker(true)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#f3f4f6',
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#d1d5db',
+                  }}
+                >
+                  <Text style={{ color: '#374151', textAlign: 'center' }}>
+                    {props.startDate || '시작일 선택'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => props.setShowEndDatePicker(true)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#f3f4f6',
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#d1d5db',
+                  }}
+                >
+                  <Text style={{ color: '#374151', textAlign: 'center' }}>
+                    {props.endDate || '종료일 선택'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {props.type === 'deadline' && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+                마감일
+              </Text>
+              <View style={{ flexDirection: 'row', gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => props.setShowEndDatePicker(true)}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#f3f4f6',
+                    padding: 10,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: '#d1d5db',
+                  }}
+                >
+                  <Text style={{ color: '#374151', textAlign: 'center' }}>
+                    {props.endDate || '마감일 선택'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {props.type === 'todo' && (
+            <>
+              {/* 완료 예정일 */}
+              <View style={{ marginTop: 20 }}>
+                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+                  완료 예정일
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  <TouchableOpacity
+                    onPress={() => props.setShowEndDatePicker(true)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: '#f3f4f6',
+                      padding: 10,
+                      borderRadius: 8,
+                      borderWidth: 1,
+                      borderColor: '#d1d5db',
+                    }}
+                  >
+                    <Text style={{ color: '#374151', textAlign: 'center' }}>
+                      {props.endDate || '완료 예정일 선택'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+              {/* 완료 여부 */}
+              <View
+                style={{
+                  marginTop: 20,
+                  marginBottom: 0,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <Text style={{ fontSize: 18, fontWeight: '600', lineHeight: 22 }}>완료 여부</Text>
+                <TouchableOpacity
+                  onPress={() => props.setChecked && props.setChecked(!props.checked)}
+                  activeOpacity={0.7}
+                >
+                  <View
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 4,
+                      borderWidth: 2,
+                      borderColor: props.checked ? '#111827' : '#d1d5db',
+                      backgroundColor: props.checked ? '#111827' : 'transparent',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {props.checked && <Ionicons name="checkmark" size={14} color="white" />}
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </>
+      )}
+      {/* 반복 선택: type이 'routine'일 때만 표시 */}
+      {props.type === 'routine' && (
+        <View style={{ marginTop: 20 }}>
+          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+            반복
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            {props.repeatCycles.map(opt => (
+              <TouchableOpacity
+                key={opt.value}
+                onPress={() => props.setRepeat(opt.value)}
+                style={{
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 16,
+                  borderWidth: 1,
+                  borderColor: props.repeat === opt.value ? '#000' : '#d1d5db',
+                  backgroundColor: props.repeat === opt.value ? '#000' : 'white',
+                }}
+              >
+                <Text style={{ color: props.repeat === opt.value ? 'white' : '#374151' }}>
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </View>
+      )}
       {/* 노트 입력 */}
       <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 16, fontWeight: '600', marginBottom: 8 }}>노트</Text>
+        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
+          노트
+        </Text>
         <TextInput
           value={props.note}
           onChangeText={props.setNote}
