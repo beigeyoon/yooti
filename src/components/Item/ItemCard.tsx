@@ -104,8 +104,8 @@ export default function ItemCard({
         )}
 
         {/* 제목/내용 */}
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', minWidth: 0 }}>
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', minWidth: 0 }}>
+        <View style={{ flex: 1, flexDirection: 'column', minWidth: 0 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', minWidth: 0 }}>
             <Text
               style={{
                 fontSize: 15,
@@ -161,15 +161,16 @@ export default function ItemCard({
                 {item.startDate} ~ {item.endDate}
               </Text>
             )}
+            {/* 그룹명 칩 (우측 끝 정렬) */}
+            <ItemCardGroups itemGroups={item.groups} allGroups={groups} />
           </View>
-          {/* 그룹명 칩 (우측 끝 정렬) */}
-          <ItemCardGroups itemGroups={item.groups} allGroups={groups} />
           {item.note && (
             <Text
               style={{
-                color: '#6b7280',
+                color: '#b0b4ba',
                 fontSize: 12,
                 lineHeight: 16,
+                marginTop: 2,
                 ...(item.type === 'deadline' || item.type === 'period'
                   ? { fontSize: 11, lineHeight: 14 }
                   : {}),

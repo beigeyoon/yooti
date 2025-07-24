@@ -17,13 +17,6 @@ interface ItemFormGroupSelectorProps {
   onCreateGroup: () => void;
 }
 
-const GROUP_TYPE_OPTIONS = [
-  { value: 'flow', label: '순서형' },
-  { value: 'related', label: '연관형' },
-  { value: 'dependency', label: '의존형' },
-  { value: 'custom', label: '커스텀' },
-];
-
 export default function ItemFormGroupSelector({
   groups,
   selectedGroups,
@@ -39,7 +32,6 @@ export default function ItemFormGroupSelector({
   onCreateGroup,
 }: ItemFormGroupSelectorProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [newGroupType, setNewGroupType] = useState('custom');
 
   return (
     <View>
@@ -144,36 +136,6 @@ export default function ItemFormGroupSelector({
                   marginBottom: 8,
                 }}
               />
-              {/* 그룹 타입 선택 */}
-              <View style={{ marginBottom: 12 }}>
-                <Text style={{ fontSize: 15, fontWeight: '500', marginBottom: 4 }}>그룹 타입</Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
-                  {GROUP_TYPE_OPTIONS.map(opt => (
-                    <TouchableOpacity
-                      key={opt.value}
-                      onPress={() => setNewGroupType(opt.value)}
-                      style={{
-                        paddingHorizontal: 10,
-                        paddingVertical: 6,
-                        borderRadius: 12,
-                        borderWidth: 1,
-                        borderColor: newGroupType === opt.value ? '#000' : '#d1d5db',
-                        backgroundColor: newGroupType === opt.value ? '#000' : 'white',
-                        marginRight: 4,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          color: newGroupType === opt.value ? 'white' : '#374151',
-                          fontSize: 14,
-                        }}
-                      >
-                        {opt.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
               <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
                 <TouchableOpacity
                   onPress={() => setModalVisible(false)}

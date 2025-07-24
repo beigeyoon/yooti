@@ -83,6 +83,10 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
       Alert.alert('오류', '제목을 입력해주세요.');
       return;
     }
+    if (type === 'period' && !endDate) {
+      Alert.alert('오류', '기간 아이템은 종료일을 반드시 선택해야 합니다.');
+      return;
+    }
 
     // GroupLink 생성 (선택된 그룹이 있을 때만)
     const groupLinks = selectedGroups.length > 0 ? selectedGroups : undefined;

@@ -156,29 +156,6 @@ export default function GroupSwipeableCard({
                     </Text>
                   )}
                   <View style={{ flexDirection: 'row', gap: 12, marginTop: 6 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                      <View
-                        style={{
-                          backgroundColor: '#f3f4f6',
-                          borderColor: (COLORS.itemTypes as any)[group.type] || '#d1d5db',
-                          borderWidth: 1,
-                          borderRadius: 10,
-                          paddingHorizontal: 8,
-                          paddingVertical: 2,
-                          marginRight: 2,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: (COLORS.itemTypes as any)[group.type] || '#374151',
-                            fontSize: 12,
-                            fontWeight: '500',
-                          }}
-                        >
-                          {GROUP_TYPE_LABELS[group.type] || group.type}
-                        </Text>
-                      </View>
-                    </View>
                     <Text style={{ color: COLORS.ui.text.muted, fontSize: 13 }}>
                       생성: {group.createdAt.slice(0, 10)}
                     </Text>

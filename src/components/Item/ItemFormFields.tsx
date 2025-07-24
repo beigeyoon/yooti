@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import dayjs from 'dayjs';
 
 interface ItemFormFieldsProps {
   title: string;
@@ -39,6 +40,12 @@ interface ItemFormFieldsProps {
 export default function ItemFormFields(props: ItemFormFieldsProps) {
   // ...기존 입력 필드 UI/로직을 이곳에 옮기세요 (props로 상태/핸들러 전달)
   // 예시: 제목, 타입, 날짜, 시간, 반복, 노트 등
+  const getKoreanDay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const d = dayjs(dateStr);
+    return days[d.day()];
+  };
   return (
     <View>
       {/* 제목 */}
@@ -108,8 +115,12 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
         >
           {props.isSomeday && <Ionicons name="checkmark" size={14} color="white" />}
         </View>
-        <Text style={{ fontSize: 15, color: '#374151', fontWeight: '500' }}>언젠가(날짜 미정)</Text>
+        <Text style={{ fontSize: 15, color: '#374151', fontWeight: '500' }}>언젠가 (someday)</Text>
       </TouchableOpacity>
+      {/* 언젠가 설명 문구 */}
+      <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 4, marginLeft: 2 }}>
+        언젠가를 선택하면 날짜 없이 아이템을 등록할 수 있어요
+      </Text>
       {/* 날짜/시간 선택: 타입별 조건부 렌더링 */}
       {/* 할일: 날짜/시간 모두 숨김 */}
       {/* 반복: 날짜만, 시간 숨김 */}
@@ -138,7 +149,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     }}
                   >
                     <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.startDate || '시작일 선택'}
+                      {props.startDate
+                        ? `${props.startDate} (${getKoreanDay(props.startDate)})`
+                        : '시작일 선택'}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -153,7 +166,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     }}
                   >
                     <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.endDate || '종료일 선택'}
+                      {props.endDate
+                        ? `${props.endDate} (${getKoreanDay(props.endDate)})`
+                        : '종료일 선택'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -216,7 +231,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   }}
                 >
                   <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.startDate || '시작일 선택'}
+                    {props.startDate
+                      ? `${props.startDate} (${getKoreanDay(props.startDate)})`
+                      : '시작일 선택'}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -231,7 +248,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   }}
                 >
                   <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.endDate || '종료일 선택'}
+                    {props.endDate
+                      ? `${props.endDate} (${getKoreanDay(props.endDate)})`
+                      : '종료일 선택'}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -255,7 +274,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   }}
                 >
                   <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.startDate || '시작일 선택'}
+                    {props.startDate
+                      ? `${props.startDate} (${getKoreanDay(props.startDate)})`
+                      : '시작일 선택'}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -270,7 +291,9 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   }}
                 >
                   <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.endDate || '종료일 선택'}
+                    {props.endDate
+                      ? `${props.endDate} (${getKoreanDay(props.endDate)})`
+                      : '종료일 선택'}
                   </Text>
                 </TouchableOpacity>
               </View>
