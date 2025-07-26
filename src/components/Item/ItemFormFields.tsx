@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
+import DateInput from './DateInput';
 
 interface ItemFormFieldsProps {
   title: string;
@@ -40,12 +41,6 @@ interface ItemFormFieldsProps {
 export default function ItemFormFields(props: ItemFormFieldsProps) {
   // ...기존 입력 필드 UI/로직을 이곳에 옮기세요 (props로 상태/핸들러 전달)
   // 예시: 제목, 타입, 날짜, 시간, 반복, 노트 등
-  const getKoreanDay = (dateStr: string) => {
-    if (!dateStr) return '';
-    const days = ['일', '월', '화', '수', '목', '금', '토'];
-    const d = dayjs(dateStr);
-    return days[d.day()];
-  };
   return (
     <View>
       {/* 제목 */}
@@ -137,40 +132,18 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   날짜
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity
+                  <DateInput
+                    label="시작일"
+                    value={props.startDate}
+                    placeholder="시작일"
                     onPress={() => props.setShowStartDatePicker(true)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#f3f4f6',
-                      padding: 10,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                    }}
-                  >
-                    <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.startDate
-                        ? `${props.startDate} (${getKoreanDay(props.startDate)})`
-                        : '시작일 선택'}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                  />
+                  <DateInput
+                    label="종료일"
+                    value={props.endDate}
+                    placeholder="종료일"
                     onPress={() => props.setShowEndDatePicker(true)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#f3f4f6',
-                      padding: 10,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                    }}
-                  >
-                    <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.endDate
-                        ? `${props.endDate} (${getKoreanDay(props.endDate)})`
-                        : '종료일 선택'}
-                    </Text>
-                  </TouchableOpacity>
+                  />
                 </View>
               </View>
               {/* 시간 선택 */}
@@ -179,36 +152,20 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   시간
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity
+                  <DateInput
+                    label="시작시간"
+                    value={props.startTime}
+                    placeholder="시작시간"
                     onPress={() => props.setShowStartTimePicker(true)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#f3f4f6',
-                      padding: 10,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                    }}
-                  >
-                    <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.startTime || '시작시간'}
-                    </Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                    showDay={false}
+                  />
+                  <DateInput
+                    label="종료시간"
+                    value={props.endTime}
+                    placeholder="종료시간"
                     onPress={() => props.setShowEndTimePicker(true)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#f3f4f6',
-                      padding: 10,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                    }}
-                  >
-                    <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.endTime || '종료시간'}
-                    </Text>
-                  </TouchableOpacity>
+                    showDay={false}
+                  />
                 </View>
               </View>
             </>
@@ -219,40 +176,18 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                 날짜
               </Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity
+                <DateInput
+                  label="시작일"
+                  value={props.startDate}
+                  placeholder="시작일"
                   onPress={() => props.setShowStartDatePicker(true)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#f3f4f6',
-                    padding: 10,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                  }}
-                >
-                  <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.startDate
-                      ? `${props.startDate} (${getKoreanDay(props.startDate)})`
-                      : '시작일 선택'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                />
+                <DateInput
+                  label="종료일"
+                  value={props.endDate}
+                  placeholder="종료일"
                   onPress={() => props.setShowEndDatePicker(true)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#f3f4f6',
-                    padding: 10,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                  }}
-                >
-                  <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.endDate
-                      ? `${props.endDate} (${getKoreanDay(props.endDate)})`
-                      : '종료일 선택'}
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
             </View>
           )}
@@ -262,40 +197,18 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                 날짜
               </Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity
+                <DateInput
+                  label="시작일"
+                  value={props.startDate}
+                  placeholder="시작일"
                   onPress={() => props.setShowStartDatePicker(true)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#f3f4f6',
-                    padding: 10,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                  }}
-                >
-                  <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.startDate
-                      ? `${props.startDate} (${getKoreanDay(props.startDate)})`
-                      : '시작일 선택'}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                />
+                <DateInput
+                  label="종료일"
+                  value={props.endDate}
+                  placeholder="종료일"
                   onPress={() => props.setShowEndDatePicker(true)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#f3f4f6',
-                    padding: 10,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                  }}
-                >
-                  <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.endDate
-                      ? `${props.endDate} (${getKoreanDay(props.endDate)})`
-                      : '종료일 선택'}
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
             </View>
           )}
@@ -305,21 +218,12 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                 마감일
               </Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity
+                <DateInput
+                  label="마감일"
+                  value={props.endDate}
+                  placeholder="마감일"
                   onPress={() => props.setShowEndDatePicker(true)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#f3f4f6',
-                    padding: 10,
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: '#d1d5db',
-                  }}
-                >
-                  <Text style={{ color: '#374151', textAlign: 'center' }}>
-                    {props.endDate || '마감일 선택'}
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
             </View>
           )}
@@ -331,21 +235,12 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   완료 예정일
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
-                  <TouchableOpacity
+                  <DateInput
+                    label="완료 예정일"
+                    value={props.endDate}
+                    placeholder="완료 예정일"
                     onPress={() => props.setShowEndDatePicker(true)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#f3f4f6',
-                      padding: 10,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      borderColor: '#d1d5db',
-                    }}
-                  >
-                    <Text style={{ color: '#374151', textAlign: 'center' }}>
-                      {props.endDate || '완료 예정일 선택'}
-                    </Text>
-                  </TouchableOpacity>
+                  />
                 </View>
               </View>
               {/* 완료 여부 */}

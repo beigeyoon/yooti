@@ -46,11 +46,33 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
           marginBottom: 12,
         }}
       >
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#374151' }}>
-          {selectedDate
-            ? dayjs(selectedDate).format('M월 D일') + ' (' + dayjs(selectedDate).format('ddd') + ')'
-            : dayjs().format('M월 D일') + ' (' + dayjs().format('ddd') + ')'}
-        </Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#374151' }}>
+            {(() => {
+              const date = selectedDate ? dayjs(selectedDate) : dayjs();
+              const days = ['일', '월', '화', '수', '목', '금', '토'];
+              return date.format('M월 D일') + ' (' + days[date.day()] + ')';
+            })()}
+          </Text>
+          {(() => {
+            const date = selectedDate ? dayjs(selectedDate) : dayjs();
+            const today = dayjs();
+            return date.isSame(today, 'day') ? (
+              <View
+                style={{
+                  backgroundColor: 'black',
+                  paddingHorizontal: 8,
+                  paddingVertical: 3,
+                  borderRadius: 12,
+                  marginLeft: 8,
+                  marginTop: 1,
+                }}
+              >
+                <Text style={{ fontSize: 12, color: 'white', fontWeight: '500' }}>오늘</Text>
+              </View>
+            ) : null;
+          })()}
+        </View>
       </View>
 
       {selectedDateItems.length === 0 ? (
@@ -58,7 +80,11 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
           이 날의 아이템이 없어요
         </Text>
       ) : (
-        <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={true}>
+        <ScrollView
+          style={{ flex: 1 }}
+          showsVerticalScrollIndicator={true}
+          contentContainerStyle={{ paddingBottom: 50 }}
+        >
           {selectedDateItems.map(item => (
             <ItemCard
               key={item.id}

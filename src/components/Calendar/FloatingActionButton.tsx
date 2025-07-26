@@ -13,7 +13,7 @@ export default function FloatingActionButton({ onPress }: FloatingActionButtonPr
       style={{
         position: 'absolute',
         right: 24,
-        bottom: 40,
+        bottom: 24,
         backgroundColor: '#000000',
         width: 60,
         height: 60,
