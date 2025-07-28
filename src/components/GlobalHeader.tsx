@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface GlobalHeaderProps {
@@ -26,7 +26,7 @@ export default function GlobalHeader({
           justifyContent: 'space-between',
           alignItems: 'center',
           paddingHorizontal: 20,
-          paddingTop: 50,
+          paddingTop: Platform.OS === 'web' ? 10 : 50,
           paddingBottom: 12,
           backgroundColor: 'white',
           borderBottomWidth: 1,

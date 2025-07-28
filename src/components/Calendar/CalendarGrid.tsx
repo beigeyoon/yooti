@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import dayjs from 'dayjs';
 import { Item } from '../../types/item';
 import CalendarCell from './CalendarCell';
+import { Platform } from 'react-native';
 
 interface CalendarGridProps {
   calendarDays: dayjs.Dayjs[];
@@ -33,24 +34,48 @@ export default function CalendarGrid({
   CELL_HEIGHT,
   onSelectDate,
 }: CalendarGridProps) {
+  // 7일씩 그룹화
+  const weekGroups = [];
+  for (let i = 0; i < calendarDays.length; i += 7) {
+    weekGroups.push(calendarDays.slice(i, i + 7));
+  }
+
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-      {calendarDays.map(date => (
-        <CalendarCell
-          key={date.format('YYYY-MM-DD')}
-          date={date}
-          currentDate={currentDate}
-          selectedCalendarDate={selectedCalendarDate}
-          items={items}
-          getItemsForDate={getItemsForDate}
-          getPeriodItemsForDate={getPeriodItemsForDate}
-          getWeekPeriodSlots={getWeekPeriodSlots}
-          getTypeColor={getTypeColor}
-          getPeriodColor={getPeriodColor}
-          CELL_WIDTH={CELL_WIDTH}
-          CELL_HEIGHT={CELL_HEIGHT}
-          onSelectDate={onSelectDate}
-        />
+    <View style={{ flexDirection: 'column' }}>
+      {weekGroups.map((week, weekIndex) => (
+        <View
+          key={weekIndex}
+          style={[
+            Platform.OS === 'web'
+              ? {
+                  flexDirection: 'row',
+                  width: '100%',
+                  maxWidth: '100%',
+                }
+              : {
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                },
+          ]}
+        >
+          {week.map(date => (
+            <CalendarCell
+              key={date.format('YYYY-MM-DD')}
+              date={date}
+              currentDate={currentDate}
+              selectedCalendarDate={selectedCalendarDate}
+              items={items}
+              getItemsForDate={getItemsForDate}
+              getPeriodItemsForDate={getPeriodItemsForDate}
+              getWeekPeriodSlots={getWeekPeriodSlots}
+              getTypeColor={getTypeColor}
+              getPeriodColor={getPeriodColor}
+              CELL_WIDTH={CELL_WIDTH}
+              CELL_HEIGHT={CELL_HEIGHT}
+              onSelectDate={onSelectDate}
+            />
+          ))}
+        </View>
       ))}
     </View>
   );
