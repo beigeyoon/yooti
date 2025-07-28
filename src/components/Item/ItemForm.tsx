@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Item, ItemType, RepeatCycle } from '../../types/item';
@@ -8,6 +8,7 @@ import { Group, GroupType, GroupLink } from '../../types/item';
 
 import ItemFormFields from './ItemFormFields';
 import ItemFormFooter from './ItemFormFooter';
+import WebDatePickerModal from './WebDatePickerModal';
 import { COMMON_STYLES, COLORS, SPACING } from '../../theme/styles';
 
 interface ItemFormProps {
@@ -50,6 +51,12 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
+  // Web date picker states
+  const [showWebStartDatePicker, setShowWebStartDatePicker] = useState(false);
+  const [showWebEndDatePicker, setShowWebEndDatePicker] = useState(false);
+  const [showWebStartTimePicker, setShowWebStartTimePicker] = useState(false);
+  const [showWebEndTimePicker, setShowWebEndTimePicker] = useState(false);
+
   const { groups, addGroup } = useTimeStore();
   // 여러 그룹 선택 및 타입/순서 지정
   const [selectedGroups, setSelectedGroups] = useState<GroupLink[]>([]);
@@ -75,14 +82,58 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
     }
   }, [type, presetDate, editingItem]);
 
+  // 웹용 알림 함수
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      alert(`${title}\n${message}`);
+    } else {
+      Alert.alert(title, message);
+    }
+  };
+
   const handleSubmit = () => {
     if (!title.trim()) {
-      Alert.alert('오류', '제목을 입력해주세요.');
+      showAlert('오류', '제목을 입력해주세요.');
       return;
     }
-    if (type === 'period' && !endDate) {
-      Alert.alert('오류', '기간 아이템은 종료일을 반드시 선택해야 합니다.');
-      return;
+
+    // 언젠가가 아닌 경우에만 날짜 validation 적용
+    if (!isSomeday) {
+      // 할일: 완료예정일 필수
+      if (type === 'todo' && !endDate) {
+        showAlert('오류', '할일은 완료예정일을 반드시 선택해야 합니다.');
+        return;
+      }
+
+      // 이벤트: 시작일 필수
+      if (type === 'event' && !startDate) {
+        showAlert('오류', '이벤트는 시작일을 반드시 선택해야 합니다.');
+        return;
+      }
+
+      // 반복: 시작일 필수
+      if (type === 'routine' && !startDate) {
+        showAlert('오류', '반복은 시작일을 반드시 선택해야 합니다.');
+        return;
+      }
+
+      // 기간: 시작일, 종료일 필수
+      if (type === 'period') {
+        if (!startDate) {
+          showAlert('오류', '기간은 시작일을 반드시 선택해야 합니다.');
+          return;
+        }
+        if (!endDate) {
+          showAlert('오류', '기간은 종료일을 반드시 선택해야 합니다.');
+          return;
+        }
+      }
+
+      // 마감일: 마감일 필수
+      if (type === 'deadline' && !endDate) {
+        showAlert('오류', '마감일은 마감일을 반드시 선택해야 합니다.');
+        return;
+      }
     }
 
     // GroupLink 생성 (선택된 그룹이 있을 때만)
@@ -153,7 +204,7 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
     type: GroupType;
   }) => {
     if (!groupData.title.trim()) {
-      Alert.alert('오류', '그룹명을 입력하세요');
+      showAlert('오류', '그룹명을 입력하세요');
       return;
     }
     const newGroup: Group = {
@@ -195,6 +246,27 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
     setShowEndTimePicker(false);
   };
 
+  // Web date picker handlers
+  const handleWebStartDateConfirm = (dateStr: string) => {
+    setStartDate(dateStr);
+    setShowWebStartDatePicker(false);
+  };
+
+  const handleWebEndDateConfirm = (dateStr: string) => {
+    setEndDate(dateStr);
+    setShowWebEndDatePicker(false);
+  };
+
+  const handleWebStartTimeConfirm = (timeStr: string) => {
+    setStartTime(timeStr);
+    setShowWebStartTimePicker(false);
+  };
+
+  const handleWebEndTimeConfirm = (timeStr: string) => {
+    setEndTime(timeStr);
+    setShowWebEndTimePicker(false);
+  };
+
   return (
     <KeyboardAwareScrollView
       style={[COMMON_STYLES.container, { backgroundColor: COLORS.white }]}
@@ -234,6 +306,15 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         setShowStartTimePicker={setShowStartTimePicker}
         showEndTimePicker={showEndTimePicker}
         setShowEndTimePicker={setShowEndTimePicker}
+        // Web date picker props
+        showWebStartDatePicker={showWebStartDatePicker}
+        setShowWebStartDatePicker={setShowWebStartDatePicker}
+        showWebEndDatePicker={showWebEndDatePicker}
+        setShowWebEndDatePicker={setShowWebEndDatePicker}
+        showWebStartTimePicker={showWebStartTimePicker}
+        setShowWebStartTimePicker={setShowWebStartTimePicker}
+        showWebEndTimePicker={showWebEndTimePicker}
+        setShowWebEndTimePicker={setShowWebEndTimePicker}
         repeatCycles={repeatCycles}
         itemTypes={itemTypes}
         presetDate={presetDate}
@@ -275,6 +356,36 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         mode="time"
         onConfirm={handleEndTimeConfirm}
         onCancel={() => setShowEndTimePicker(false)}
+      />
+
+      {/* Web Date/Time Pickers */}
+      <WebDatePickerModal
+        visible={showWebStartDatePicker}
+        mode="date"
+        onConfirm={handleWebStartDateConfirm}
+        onCancel={() => setShowWebStartDatePicker(false)}
+        currentValue={startDate}
+      />
+      <WebDatePickerModal
+        visible={showWebEndDatePicker}
+        mode="date"
+        onConfirm={handleWebEndDateConfirm}
+        onCancel={() => setShowWebEndDatePicker(false)}
+        currentValue={endDate}
+      />
+      <WebDatePickerModal
+        visible={showWebStartTimePicker}
+        mode="time"
+        onConfirm={handleWebStartTimeConfirm}
+        onCancel={() => setShowWebStartTimePicker(false)}
+        currentValue={startTime}
+      />
+      <WebDatePickerModal
+        visible={showWebEndTimePicker}
+        mode="time"
+        onConfirm={handleWebEndTimeConfirm}
+        onCancel={() => setShowWebEndTimePicker(false)}
+        currentValue={endTime}
       />
     </KeyboardAwareScrollView>
   );

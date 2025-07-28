@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import DateInput from './DateInput';
@@ -34,6 +34,15 @@ interface ItemFormFieldsProps {
   setShowStartTimePicker: (v: boolean) => void;
   showEndTimePicker: boolean;
   setShowEndTimePicker: (v: boolean) => void;
+  // Web date picker props
+  showWebStartDatePicker: boolean;
+  setShowWebStartDatePicker: (v: boolean) => void;
+  showWebEndDatePicker: boolean;
+  setShowWebEndDatePicker: (v: boolean) => void;
+  showWebStartTimePicker: boolean;
+  setShowWebStartTimePicker: (v: boolean) => void;
+  showWebEndTimePicker: boolean;
+  setShowWebEndTimePicker: (v: boolean) => void;
   repeatCycles: { value: string; label: string }[];
   itemTypes: { value: string; label: string }[];
   presetDate?: string;
@@ -125,13 +134,23 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     label="시작일"
                     value={props.startDate}
                     placeholder="시작일"
-                    onPress={() => props.setShowStartDatePicker(true)}
+                    onPress={() =>
+                      Platform.OS === 'web'
+                        ? props.setShowWebStartDatePicker(true)
+                        : props.setShowStartDatePicker(true)
+                    }
+                    onChange={props.setStartDate}
                   />
                   <DateInput
                     label="종료일"
                     value={props.endDate}
                     placeholder="종료일"
-                    onPress={() => props.setShowEndDatePicker(true)}
+                    onPress={() =>
+                      Platform.OS === 'web'
+                        ? props.setShowWebEndDatePicker(true)
+                        : props.setShowEndDatePicker(true)
+                    }
+                    onChange={props.setEndDate}
                   />
                 </View>
               </FormSection>
@@ -142,14 +161,24 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     label="시작시간"
                     value={props.startTime}
                     placeholder="시작시간"
-                    onPress={() => props.setShowStartTimePicker(true)}
+                    onPress={() =>
+                      Platform.OS === 'web'
+                        ? props.setShowWebStartTimePicker(true)
+                        : props.setShowStartTimePicker(true)
+                    }
+                    onChange={props.setStartTime}
                     showDay={false}
                   />
                   <DateInput
                     label="종료시간"
                     value={props.endTime}
                     placeholder="종료시간"
-                    onPress={() => props.setShowEndTimePicker(true)}
+                    onPress={() =>
+                      Platform.OS === 'web'
+                        ? props.setShowWebEndTimePicker(true)
+                        : props.setShowEndTimePicker(true)
+                    }
+                    onChange={props.setEndTime}
                     showDay={false}
                   />
                 </View>
@@ -163,13 +192,23 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   label="시작일"
                   value={props.startDate}
                   placeholder="시작일"
-                  onPress={() => props.setShowStartDatePicker(true)}
+                  onPress={() =>
+                    Platform.OS === 'web'
+                      ? props.setShowWebStartDatePicker(true)
+                      : props.setShowStartDatePicker(true)
+                  }
+                  onChange={props.setStartDate}
                 />
                 <DateInput
                   label="종료일"
                   value={props.endDate}
                   placeholder="종료일"
-                  onPress={() => props.setShowEndDatePicker(true)}
+                  onPress={() =>
+                    Platform.OS === 'web'
+                      ? props.setShowWebEndDatePicker(true)
+                      : props.setShowEndDatePicker(true)
+                  }
+                  onChange={props.setEndDate}
                 />
               </View>
             </FormSection>
@@ -181,13 +220,23 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   label="시작일"
                   value={props.startDate}
                   placeholder="시작일"
-                  onPress={() => props.setShowStartDatePicker(true)}
+                  onPress={() =>
+                    Platform.OS === 'web'
+                      ? props.setShowWebStartDatePicker(true)
+                      : props.setShowStartDatePicker(true)
+                  }
+                  onChange={props.setStartDate}
                 />
                 <DateInput
                   label="종료일"
                   value={props.endDate}
                   placeholder="종료일"
-                  onPress={() => props.setShowEndDatePicker(true)}
+                  onPress={() =>
+                    Platform.OS === 'web'
+                      ? props.setShowWebEndDatePicker(true)
+                      : props.setShowEndDatePicker(true)
+                  }
+                  onChange={props.setEndDate}
                 />
               </View>
             </FormSection>
@@ -199,7 +248,12 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   label="마감일"
                   value={props.endDate}
                   placeholder="마감일"
-                  onPress={() => props.setShowEndDatePicker(true)}
+                  onPress={() =>
+                    Platform.OS === 'web'
+                      ? props.setShowWebEndDatePicker(true)
+                      : props.setShowEndDatePicker(true)
+                  }
+                  onChange={props.setEndDate}
                 />
               </View>
             </FormSection>
@@ -213,7 +267,12 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     label="완료 예정일"
                     value={props.endDate}
                     placeholder="완료 예정일"
-                    onPress={() => props.setShowEndDatePicker(true)}
+                    onPress={() =>
+                      Platform.OS === 'web'
+                        ? props.setShowWebEndDatePicker(true)
+                        : props.setShowEndDatePicker(true)
+                    }
+                    onChange={props.setEndDate}
                   />
                 </View>
               </FormSection>

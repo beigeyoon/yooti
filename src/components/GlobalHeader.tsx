@@ -71,7 +71,7 @@ export default function GlobalHeader({
           <View
             style={{
               position: 'absolute',
-              top: 100,
+              top: Platform.OS === 'web' ? 60 : 100,
               right: 20,
               backgroundColor: 'white',
               borderRadius: 8,

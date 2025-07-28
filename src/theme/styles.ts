@@ -270,6 +270,75 @@ export const createChipButtonTextStyle = (isSelected: boolean) => ({
   ...(isSelected ? COMMON_STYLES.buttonTextPrimary : COMMON_STYLES.buttonTextSecondary),
 });
 
+// DateInput 관련 스타일
+export const DATE_INPUT_STYLES = StyleSheet.create({
+  // 앱용 X 버튼 스타일
+  appXButton: {
+    position: 'absolute',
+    top: '50%',
+    right: 8,
+    transform: [{ translateY: -10 }],
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#9ca3af',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
+
+  // 앱용 X 버튼 텍스트 스타일
+  appXButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    lineHeight: 20,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  },
+});
+
+// 웹용 DateInput 스타일 (CSS 객체)
+export const DATE_INPUT_WEB_STYLES = {
+  webInput: {
+    padding: '10px 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: 8,
+    fontSize: 14,
+    backgroundColor: '#f3f4f6',
+    color: 'transparent',
+    outline: 'none',
+    fontFamily: 'inherit',
+    lineHeight: '20px',
+    textAlign: 'center',
+    boxSizing: 'border-box',
+    height: '40px',
+    cursor: 'pointer',
+  },
+
+  webTextOverlay: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    fontSize: 14,
+    pointerEvents: 'none',
+    zIndex: 1,
+  },
+
+  webXButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: 'bold',
+    lineHeight: 20,
+    textAlign: 'center',
+    height: 20,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+};
+
 // 웹 전용 유틸리티
 export const getWebStyles = () => {
   if (Platform.OS === 'web') {
