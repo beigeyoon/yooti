@@ -5,7 +5,9 @@ import dayjs from 'dayjs';
 import DateInput from './DateInput';
 import SelectableButton from '../common/SelectableButton';
 import FormSection from '../common/FormSection';
+import ItemFormGroupSelector from './ItemFormGroupSelector';
 import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../../theme/styles';
+import type { Group, GroupType, GroupLink } from '../../types/item';
 
 interface ItemFormFieldsProps {
   title: string;
@@ -39,6 +41,13 @@ interface ItemFormFieldsProps {
   setNote: (v: string) => void;
   checked: boolean;
   setChecked: (v: boolean) => void;
+  // 그룹 관련 props
+  groups: Group[];
+  selectedGroups: GroupLink[];
+  onToggleGroup: (group: Group) => void;
+  onChangeGroupType: (groupId: string, type: GroupType) => void;
+  onChangeGroupOrder: (groupId: string, order: number | undefined) => void;
+  onCreateGroup: (group: { title: string; description: string; type: GroupType }) => void;
 }
 
 export default function ItemFormFields(props: ItemFormFieldsProps) {
@@ -47,7 +56,7 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
   return (
     <View>
       {/* 제목 */}
-      <FormSection title="제목">
+      <FormSection title="제목" isFirstSection={true}>
         <TextInput
           value={props.title}
           onChangeText={props.setTitle}
@@ -270,6 +279,16 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
           multiline
         />
       </FormSection>
+
+      {/* 그룹 할당 */}
+      <ItemFormGroupSelector
+        groups={props.groups}
+        selectedGroups={props.selectedGroups}
+        onToggleGroup={props.onToggleGroup}
+        onChangeGroupType={props.onChangeGroupType}
+        onChangeGroupOrder={props.onChangeGroupOrder}
+        onCreateGroup={props.onCreateGroup}
+      />
     </View>
   );
 }

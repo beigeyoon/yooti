@@ -18,7 +18,17 @@ export default function ModalContainer({
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={COMMON_STYLES.modalOverlay}>
-        <TouchableOpacity style={COMMON_STYLES.modalOverlay} onPress={onClose} />
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.2)',
+          }}
+          onPress={onClose}
+        />
         <View style={COMMON_STYLES.modalContainer}>
           <View style={[COMMON_STYLES.modalContent, { width }]}>{children}</View>
         </View>

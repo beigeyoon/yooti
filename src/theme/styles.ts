@@ -117,11 +117,30 @@ export const COMMON_STYLES = StyleSheet.create({
     borderColor: COLORS.border,
   },
 
-  // 버튼
+  // 버튼 (일반 버튼)
   button: {
     paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    borderRadius: 8, // 더 각진 모양
+    borderWidth: 0, // border 제거
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...(Platform.OS === 'web' && {
+      cursor: 'pointer',
+      userSelect: 'none',
+      ':hover': {
+        opacity: 0.8,
+      },
+      ':active': {
+        opacity: 0.6,
+      },
+    }),
+  },
+  // 칩 버튼 (타입/그룹 선택용)
+  chipButton: {
+    paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
-    borderRadius: SPACING.lg,
+    borderRadius: 25, // 둥근 칩 형태
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -236,6 +255,17 @@ export const createButtonStyle = (isSelected: boolean) => ({
 });
 
 export const createButtonTextStyle = (isSelected: boolean) => ({
+  ...COMMON_STYLES.buttonText,
+  ...(isSelected ? COMMON_STYLES.buttonTextPrimary : COMMON_STYLES.buttonTextSecondary),
+});
+
+// 칩 버튼용 유틸리티 함수
+export const createChipButtonStyle = (isSelected: boolean) => ({
+  ...COMMON_STYLES.chipButton,
+  ...(isSelected ? COMMON_STYLES.buttonPrimary : COMMON_STYLES.buttonSecondary),
+});
+
+export const createChipButtonTextStyle = (isSelected: boolean) => ({
   ...COMMON_STYLES.buttonText,
   ...(isSelected ? COMMON_STYLES.buttonTextPrimary : COMMON_STYLES.buttonTextSecondary),
 });

@@ -5,7 +5,7 @@ import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { Item, ItemType, RepeatCycle } from '../../types/item';
 import { useTimeStore } from '../../store/itemStore';
 import { Group, GroupType, GroupLink } from '../../types/item';
-import ItemFormGroupSelector from './ItemFormGroupSelector';
+
 import ItemFormFields from './ItemFormFields';
 import ItemFormFooter from './ItemFormFooter';
 import { COMMON_STYLES, COLORS, SPACING } from '../../theme/styles';
@@ -53,10 +53,6 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   const { groups, addGroup } = useTimeStore();
   // 여러 그룹 선택 및 타입/순서 지정
   const [selectedGroups, setSelectedGroups] = useState<GroupLink[]>([]);
-  const [showNewGroup, setShowNewGroup] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupDesc, setNewGroupDesc] = useState('');
-  const [newGroupType, setNewGroupType] = useState<GroupType>('related');
 
   useEffect(() => {
     if (editingItem?.groups) {
@@ -151,23 +147,24 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   };
 
   // 그룹 생성 핸들러
-  const handleCreateGroup = () => {
-    if (!newGroupName.trim()) {
+  const handleCreateGroup = (groupData: {
+    title: string;
+    description: string;
+    type: GroupType;
+  }) => {
+    if (!groupData.title.trim()) {
       Alert.alert('오류', '그룹명을 입력하세요');
       return;
     }
     const newGroup: Group = {
       id: Date.now().toString(),
-      title: newGroupName.trim(),
-      type: newGroupType,
-      description: newGroupDesc.trim(),
+      title: groupData.title.trim(),
+      type: groupData.type,
+      description: groupData.description.trim(),
       createdAt: new Date().toISOString(),
     };
     addGroup(newGroup);
-    setSelectedGroups([...selectedGroups, { groupId: newGroup.id, type: newGroupType }]);
-    setShowNewGroup(false);
-    setNewGroupName('');
-    setNewGroupDesc('');
+    setSelectedGroups([...selectedGroups, { groupId: newGroup.id, type: groupData.type }]);
   };
 
   const formatDate = (date: Date) => {
@@ -244,21 +241,12 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         setNote={setNote}
         checked={checked}
         setChecked={setChecked}
-      />
-
-      {/* 그룹 할당 */}
-      <ItemFormGroupSelector
+        // 그룹 관련 props
         groups={groups}
         selectedGroups={selectedGroups}
         onToggleGroup={handleToggleGroup}
         onChangeGroupType={handleChangeGroupType}
         onChangeGroupOrder={handleChangeGroupOrder}
-        showNewGroup={showNewGroup}
-        setShowNewGroup={setShowNewGroup}
-        newGroupName={newGroupName}
-        setNewGroupName={setNewGroupName}
-        newGroupDesc={newGroupDesc}
-        setNewGroupDesc={setNewGroupDesc}
         onCreateGroup={handleCreateGroup}
       />
 

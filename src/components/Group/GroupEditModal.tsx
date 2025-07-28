@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Modal, TextInput, TouchableOpacity } from 'react-native';
 import type { GroupType } from '../../types/item';
+import { COMMON_STYLES, COLORS, SPACING } from '../../theme/styles';
 
 const GROUP_TYPE_OPTIONS = [
   { value: 'flow', label: '순서형' },
@@ -82,33 +83,21 @@ export default function GroupEditModal({
                 borderRadius: 8,
                 padding: 10,
                 fontSize: 15,
-                marginBottom: 8,
+                marginBottom: SPACING.lg,
               }}
             />
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
+            <View style={[COMMON_STYLES.row, { gap: SPACING.md }]}>
               <TouchableOpacity
                 onPress={onClose}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 18,
-                  borderRadius: 8,
-                  backgroundColor: '#e5e7eb',
-                }}
+                style={[COMMON_STYLES.button, { flex: 1, backgroundColor: COLORS.border }]}
               >
-                <Text style={{ color: '#374151', fontWeight: '600' }}>취소</Text>
+                <Text style={[COMMON_STYLES.buttonText, { color: COLORS.secondary }]}>취소</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={onSubmit}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 18,
-                  borderRadius: 8,
-                  backgroundColor: '#d1d5db',
-                }}
+                style={[COMMON_STYLES.button, { flex: 1, backgroundColor: COLORS.primary }]}
               >
-                <Text style={{ color: '#374151', fontWeight: '600' }}>
-                  {isCreate ? '그룹 생성' : '저장'}
-                </Text>
+                <Text style={[COMMON_STYLES.buttonText, { color: COLORS.white }]}>저장</Text>
               </TouchableOpacity>
             </View>
           </View>

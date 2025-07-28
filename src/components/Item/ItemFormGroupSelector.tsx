@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import type { Group, GroupType, GroupLink } from '../../types/item';
 import SelectableButton from '../common/SelectableButton';
 import FormSection from '../common/FormSection';
-import ModalContainer from '../common/ModalContainer';
+import GroupEditModal from '../Group/GroupEditModal';
 import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../../theme/styles';
 
 interface ItemFormGroupSelectorProps {
@@ -12,13 +12,7 @@ interface ItemFormGroupSelectorProps {
   onToggleGroup: (group: Group) => void;
   onChangeGroupType: (groupId: string, type: GroupType) => void;
   onChangeGroupOrder: (groupId: string, order: number | undefined) => void;
-  showNewGroup: boolean;
-  setShowNewGroup: (v: boolean) => void;
-  newGroupName: string;
-  setNewGroupName: (v: string) => void;
-  newGroupDesc: string;
-  setNewGroupDesc: (v: string) => void;
-  onCreateGroup: () => void;
+  onCreateGroup: (group: { title: string; description: string; type: GroupType }) => void;
 }
 
 export default function ItemFormGroupSelector({
@@ -27,15 +21,14 @@ export default function ItemFormGroupSelector({
   onToggleGroup,
   onChangeGroupType,
   onChangeGroupOrder,
-  showNewGroup,
-  setShowNewGroup,
-  newGroupName,
-  setNewGroupName,
-  newGroupDesc,
-  setNewGroupDesc,
   onCreateGroup,
 }: ItemFormGroupSelectorProps) {
   const [modalVisible, setModalVisible] = useState(false);
+  const [newGroup, setNewGroup] = useState({
+    title: '',
+    description: '',
+    type: 'related' as GroupType,
+  });
 
   return (
     <FormSection title="그룹 할당">
@@ -78,38 +71,18 @@ export default function ItemFormGroupSelector({
           + 새 그룹 만들기
         </Text>
       </TouchableOpacity>
-      <ModalContainer visible={modalVisible} onClose={() => setModalVisible(false)} width={320}>
-        <Text style={COMMON_STYLES.sectionTitle}>새 그룹 만들기</Text>
-        <TextInput
-          value={newGroupName}
-          onChangeText={setNewGroupName}
-          placeholder="그룹명"
-          style={[COMMON_STYLES.input, { marginBottom: SPACING.sm }]}
-        />
-        <TextInput
-          value={newGroupDesc}
-          onChangeText={setNewGroupDesc}
-          placeholder="설명 (선택)"
-          style={[COMMON_STYLES.input, { marginBottom: SPACING.lg }]}
-        />
-        <View style={[COMMON_STYLES.row, { justifyContent: 'flex-end', gap: SPACING.sm }]}>
-          <TouchableOpacity
-            onPress={() => setModalVisible(false)}
-            style={[COMMON_STYLES.button, { backgroundColor: COLORS.muted }]}
-          >
-            <Text style={[COMMON_STYLES.buttonText, { color: COLORS.secondary }]}>취소</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              onCreateGroup();
-              setModalVisible(false);
-            }}
-            style={[COMMON_STYLES.button, { backgroundColor: COLORS.border }]}
-          >
-            <Text style={[COMMON_STYLES.buttonText, { color: COLORS.secondary }]}>그룹 생성</Text>
-          </TouchableOpacity>
-        </View>
-      </ModalContainer>
+      <GroupEditModal
+        visible={modalVisible}
+        group={newGroup}
+        isCreate
+        onChange={patch => setNewGroup(prev => ({ ...prev, ...patch }))}
+        onClose={() => setModalVisible(false)}
+        onSubmit={() => {
+          onCreateGroup(newGroup);
+          setModalVisible(false);
+          setNewGroup({ title: '', description: '', type: 'related' });
+        }}
+      />
     </FormSection>
   );
 }

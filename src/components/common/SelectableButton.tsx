@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text } from 'react-native';
-import { createButtonStyle, createButtonTextStyle } from '../../theme/styles';
+import { createChipButtonStyle, createChipButtonTextStyle } from '../../theme/styles';
 
 interface SelectableButtonProps {
   label: string;
@@ -16,8 +16,8 @@ export default function SelectableButton({
   onPress,
 }: SelectableButtonProps) {
   return (
-    <TouchableOpacity key={value} onPress={onPress} style={createButtonStyle(isSelected)}>
-      <Text style={createButtonTextStyle(isSelected)}>{label}</Text>
+    <TouchableOpacity key={value} onPress={onPress} style={createChipButtonStyle(isSelected)}>
+      <Text style={createChipButtonTextStyle(isSelected)}>{label}</Text>
     </TouchableOpacity>
   );
 }
