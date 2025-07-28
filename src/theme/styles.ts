@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 // 색상 상수
 export const COLORS = {
@@ -101,6 +101,13 @@ export const COMMON_STYLES = StyleSheet.create({
     padding: SPACING.md,
     fontSize: FONT_SIZE.lg,
     backgroundColor: COLORS.white,
+    ...(Platform.OS === 'web' && {
+      outlineStyle: 'none',
+      ':focus': {
+        borderColor: COLORS.primary,
+        borderWidth: 2,
+      },
+    }),
   },
   inputContainer: {
     backgroundColor: COLORS.inputBackground,
@@ -118,6 +125,16 @@ export const COMMON_STYLES = StyleSheet.create({
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    ...(Platform.OS === 'web' && {
+      cursor: 'pointer',
+      userSelect: 'none',
+      ':hover': {
+        opacity: 0.8,
+      },
+      ':active': {
+        opacity: 0.6,
+      },
+    }),
   },
   buttonPrimary: {
     backgroundColor: COLORS.primary,
@@ -149,6 +166,14 @@ export const COMMON_STYLES = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    ...(Platform.OS === 'web' && {
+      transition: 'all 0.2s ease',
+      ':hover': {
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        transform: [{ translateY: -1 }],
+      },
+    }),
   },
 
   // 섹션
@@ -214,3 +239,22 @@ export const createButtonTextStyle = (isSelected: boolean) => ({
   ...COMMON_STYLES.buttonText,
   ...(isSelected ? COMMON_STYLES.buttonTextPrimary : COMMON_STYLES.buttonTextSecondary),
 });
+
+// 웹 전용 유틸리티
+export const getWebStyles = () => {
+  if (Platform.OS === 'web') {
+    return {
+      // 웹에서만 사용할 스타일들
+      focusable: {
+        outline: 'none',
+      },
+      selectable: {
+        userSelect: 'text',
+      },
+      draggable: {
+        cursor: 'grab',
+      },
+    };
+  }
+  return {};
+};
