@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import dayjs from 'dayjs';
 import DateInput from './DateInput';
+import SelectableButton from '../common/SelectableButton';
+import FormSection from '../common/FormSection';
+import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../../theme/styles';
 
 interface ItemFormFieldsProps {
   title: string;
@@ -44,54 +47,32 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
   return (
     <View>
       {/* 제목 */}
-      <View>
-        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-          제목
-        </Text>
+      <FormSection title="제목">
         <TextInput
           value={props.title}
           onChangeText={props.setTitle}
           placeholder="아이템 제목을 입력하세요"
-          style={{
-            borderWidth: 1,
-            borderColor: '#d1d5db',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 16,
-            height: 48,
-            textAlignVertical: 'center',
-          }}
+          style={[COMMON_STYLES.input, { height: 48, textAlignVertical: 'center' }]}
         />
-      </View>
+      </FormSection>
+
       {/* 타입 선택 */}
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-          타입
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
+      <FormSection title="타입">
+        <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
           {props.itemTypes.map(opt => (
-            <TouchableOpacity
+            <SelectableButton
               key={opt.value}
+              label={opt.label}
+              value={opt.value}
+              isSelected={props.type === opt.value}
               onPress={() => props.setType(opt.value)}
-              style={{
-                paddingHorizontal: 12,
-                paddingVertical: 6,
-                borderRadius: 16,
-                borderWidth: 1,
-                borderColor: props.type === opt.value ? '#000' : '#d1d5db',
-                backgroundColor: props.type === opt.value ? '#000' : 'white',
-              }}
-            >
-              <Text style={{ color: props.type === opt.value ? 'white' : '#374151' }}>
-                {opt.label}
-              </Text>
-            </TouchableOpacity>
+            />
           ))}
         </View>
-      </View>
+      </FormSection>
       {/* 언젠가(날짜 미정) 체크박스 */}
       <TouchableOpacity
-        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, marginBottom: 0 }}
+        style={[COMMON_STYLES.row, { marginTop: SPACING.lg, marginBottom: 0 }]}
         onPress={() => props.setIsSomeday(!props.isSomeday)}
         activeOpacity={0.7}
       >
@@ -101,19 +82,21 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
             height: 20,
             borderRadius: 4,
             borderWidth: 2,
-            borderColor: props.isSomeday ? '#111827' : '#d1d5db',
-            backgroundColor: props.isSomeday ? '#111827' : 'transparent',
-            marginRight: 8,
+            borderColor: props.isSomeday ? COLORS.primary : COLORS.border,
+            backgroundColor: props.isSomeday ? COLORS.primary : 'transparent',
+            marginRight: SPACING.sm,
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
           {props.isSomeday && <Ionicons name="checkmark" size={14} color="white" />}
         </View>
-        <Text style={{ fontSize: 15, color: '#374151', fontWeight: '500' }}>언젠가 (someday)</Text>
+        <Text style={[COMMON_STYLES.bodyText, { fontWeight: FONT_WEIGHT.medium }]}>
+          언젠가 (someday)
+        </Text>
       </TouchableOpacity>
       {/* 언젠가 설명 문구 */}
-      <Text style={{ fontSize: 13, color: '#9ca3af', marginTop: 4, marginLeft: 2 }}>
+      <Text style={[COMMON_STYLES.caption, { marginTop: SPACING.xs, marginLeft: 2 }]}>
         언젠가를 선택하면 날짜 없이 아이템을 등록할 수 있어요
       </Text>
       {/* 날짜/시간 선택: 타입별 조건부 렌더링 */}
@@ -127,11 +110,8 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
           {props.type === 'event' && (
             <>
               {/* 날짜 선택 */}
-              <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-                  날짜
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
+              <FormSection title="날짜">
+                <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
                   <DateInput
                     label="시작일"
                     value={props.startDate}
@@ -145,13 +125,10 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     onPress={() => props.setShowEndDatePicker(true)}
                   />
                 </View>
-              </View>
+              </FormSection>
               {/* 시간 선택 */}
-              <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-                  시간
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
+              <FormSection title="시간">
+                <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
                   <DateInput
                     label="시작시간"
                     value={props.startTime}
@@ -167,15 +144,12 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     showDay={false}
                   />
                 </View>
-              </View>
+              </FormSection>
             </>
           )}
           {props.type === 'routine' && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-                날짜
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
+            <FormSection title="날짜">
+              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
                 <DateInput
                   label="시작일"
                   value={props.startDate}
@@ -189,14 +163,11 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   onPress={() => props.setShowEndDatePicker(true)}
                 />
               </View>
-            </View>
+            </FormSection>
           )}
           {props.type === 'period' && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-                날짜
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
+            <FormSection title="날짜">
+              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
                 <DateInput
                   label="시작일"
                   value={props.startDate}
@@ -210,14 +181,11 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   onPress={() => props.setShowEndDatePicker(true)}
                 />
               </View>
-            </View>
+            </FormSection>
           )}
           {props.type === 'deadline' && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-                마감일
-              </Text>
-              <View style={{ flexDirection: 'row', gap: 8 }}>
+            <FormSection title="마감일">
+              <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
                 <DateInput
                   label="마감일"
                   value={props.endDate}
@@ -225,16 +193,13 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   onPress={() => props.setShowEndDatePicker(true)}
                 />
               </View>
-            </View>
+            </FormSection>
           )}
           {props.type === 'todo' && (
             <>
               {/* 완료 예정일 */}
-              <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-                  완료 예정일
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 8 }}>
+              <FormSection title="완료 예정일">
+                <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
                   <DateInput
                     label="완료 예정일"
                     value={props.endDate}
@@ -242,18 +207,19 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     onPress={() => props.setShowEndDatePicker(true)}
                   />
                 </View>
-              </View>
+              </FormSection>
               {/* 완료 여부 */}
               <View
-                style={{
-                  marginTop: 20,
-                  marginBottom: 0,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 8,
-                }}
+                style={[
+                  COMMON_STYLES.row,
+                  {
+                    marginTop: SPACING.xl,
+                    marginBottom: 0,
+                    gap: SPACING.sm,
+                  },
+                ]}
               >
-                <Text style={{ fontSize: 18, fontWeight: '600', lineHeight: 22 }}>완료 여부</Text>
+                <Text style={COMMON_STYLES.sectionTitle}>완료 여부</Text>
                 <TouchableOpacity
                   onPress={() => props.setChecked && props.setChecked(!props.checked)}
                   activeOpacity={0.7}
@@ -264,8 +230,8 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                       height: 20,
                       borderRadius: 4,
                       borderWidth: 2,
-                      borderColor: props.checked ? '#111827' : '#d1d5db',
-                      backgroundColor: props.checked ? '#111827' : 'transparent',
+                      borderColor: props.checked ? COLORS.primary : COLORS.border,
+                      backgroundColor: props.checked ? COLORS.primary : 'transparent',
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -280,53 +246,30 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
       )}
       {/* 반복 선택: type이 'routine'일 때만 표시 */}
       {props.type === 'routine' && (
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-            반복
-          </Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
+        <FormSection title="반복">
+          <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
             {props.repeatCycles.map(opt => (
-              <TouchableOpacity
+              <SelectableButton
                 key={opt.value}
+                label={opt.label}
+                value={opt.value}
+                isSelected={props.repeat === opt.value}
                 onPress={() => props.setRepeat(opt.value)}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: props.repeat === opt.value ? '#000' : '#d1d5db',
-                  backgroundColor: props.repeat === opt.value ? '#000' : 'white',
-                }}
-              >
-                <Text style={{ color: props.repeat === opt.value ? 'white' : '#374151' }}>
-                  {opt.label}
-                </Text>
-              </TouchableOpacity>
+              />
             ))}
           </View>
-        </View>
+        </FormSection>
       )}
       {/* 노트 입력 */}
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-          노트
-        </Text>
+      <FormSection title="노트">
         <TextInput
           value={props.note}
           onChangeText={props.setNote}
           placeholder="메모/노트 (선택)"
-          style={{
-            borderWidth: 1,
-            borderColor: '#d1d5db',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 15,
-            minHeight: 40,
-            textAlignVertical: 'top',
-          }}
+          style={[COMMON_STYLES.input, { minHeight: 40, textAlignVertical: 'top' }]}
           multiline
         />
-      </View>
+      </FormSection>
     </View>
   );
 }

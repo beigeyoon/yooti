@@ -8,6 +8,7 @@ import { Group, GroupType, GroupLink } from '../../types/item';
 import ItemFormGroupSelector from './ItemFormGroupSelector';
 import ItemFormFields from './ItemFormFields';
 import ItemFormFooter from './ItemFormFooter';
+import { COMMON_STYLES, COLORS, SPACING } from '../../theme/styles';
 
 interface ItemFormProps {
   onSubmit: (item: Omit<Item, 'id' | 'createdAt'>) => void;
@@ -199,8 +200,13 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
 
   return (
     <KeyboardAwareScrollView
-      style={{ flex: 1, backgroundColor: 'white' }}
-      contentContainerStyle={{ padding: 16, gap: 24, paddingBottom: 32, flexGrow: 1 }}
+      style={[COMMON_STYLES.container, { backgroundColor: COLORS.white }]}
+      contentContainerStyle={{
+        padding: SPACING.lg,
+        gap: SPACING.xxl,
+        paddingBottom: SPACING.xxxl,
+        flexGrow: 1,
+      }}
       keyboardShouldPersistTaps="handled"
       enableOnAndroid={true}
       extraScrollHeight={20}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, SPACING } from '../../theme/styles';
 
 interface FloatingActionButtonProps {
   onPress: () => void;
@@ -12,16 +13,16 @@ export default function FloatingActionButton({ onPress }: FloatingActionButtonPr
       onPress={onPress}
       style={{
         position: 'absolute',
-        right: 24,
-        bottom: 24,
-        backgroundColor: '#000000',
+        right: SPACING.xxl,
+        bottom: SPACING.xxl,
+        backgroundColor: COLORS.primary,
         width: 60,
         height: 60,
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 12,
-        shadowColor: '#000000',
+        shadowColor: COLORS.primary,
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 8,

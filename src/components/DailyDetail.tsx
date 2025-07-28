@@ -7,6 +7,8 @@ import { getItemTypeColor as getTypeColor, getPeriodColor } from '../theme/color
 import dayjs from 'dayjs';
 import ItemCard from './Item/ItemCard';
 import { useItemActions } from './Item/useItemActions';
+import EmptyState from './common/EmptyState';
+import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../theme/styles';
 
 interface DailyDetailProps {
   selectedDate: string | null;
@@ -31,23 +33,10 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
   };
 
   return (
-    <View
-      style={{
-        backgroundColor: 'white',
-        padding: 16,
-        flex: 1,
-      }}
-    >
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 12,
-        }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, fontWeight: '600', color: '#374151' }}>
+    <View style={[COMMON_STYLES.container, { backgroundColor: COLORS.white, padding: SPACING.lg }]}>
+      <View style={[COMMON_STYLES.rowSpaceBetween, { marginBottom: SPACING.md }]}>
+        <View style={COMMON_STYLES.row}>
+          <Text style={[COMMON_STYLES.subtitle, { marginBottom: 0 }]}>
             {(() => {
               const date = selectedDate ? dayjs(selectedDate) : dayjs();
               const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -60,15 +49,23 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
             return date.isSame(today, 'day') ? (
               <View
                 style={{
-                  backgroundColor: 'black',
-                  paddingHorizontal: 8,
+                  backgroundColor: COLORS.primary,
+                  paddingHorizontal: SPACING.sm,
                   paddingVertical: 3,
                   borderRadius: 12,
-                  marginLeft: 8,
+                  marginLeft: SPACING.sm,
                   marginTop: 1,
                 }}
               >
-                <Text style={{ fontSize: 12, color: 'white', fontWeight: '500' }}>오늘</Text>
+                <Text
+                  style={{
+                    fontSize: FONT_SIZE.xs,
+                    color: COLORS.white,
+                    fontWeight: FONT_WEIGHT.medium,
+                  }}
+                >
+                  오늘
+                </Text>
               </View>
             ) : null;
           })()}
@@ -76,9 +73,11 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
       </View>
 
       {selectedDateItems.length === 0 ? (
-        <Text style={{ color: '#6b7280', fontSize: 14, textAlign: 'center', paddingVertical: 20 }}>
-          이 날의 아이템이 없어요
-        </Text>
+        <EmptyState
+          icon="calendar-outline"
+          title="이 날의 아이템이 없어요"
+          subtitle="새로운 아이템을 추가해보세요"
+        />
       ) : (
         <ScrollView
           style={{ flex: 1 }}

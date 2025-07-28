@@ -6,6 +6,7 @@ import ItemCardIcon from './ItemCardIcon';
 import ItemCardGroups from './ItemCardGroups';
 import { Item, Group } from '../../types/item';
 import { Ionicons } from '@expo/vector-icons';
+import { COMMON_STYLES, COLORS, SPACING } from '../../theme/styles';
 
 interface ItemCardProps {
   item: Item;
@@ -39,10 +40,10 @@ export default function ItemCard({
                 alignItems: 'center',
                 width: 50,
                 height: 'auto',
-                marginBottom: 8,
+                marginBottom: SPACING.sm,
               }}
             >
-              <Ionicons name="create-outline" size={20} color="#6b7280" />
+              <Ionicons name="create-outline" size={20} color={COLORS.tertiary} />
             </TouchableOpacity>
           )}
           {onDelete && (
@@ -54,38 +55,34 @@ export default function ItemCard({
                 alignItems: 'center',
                 width: 50,
                 height: 'auto',
-                marginBottom: 8,
+                marginBottom: SPACING.sm,
               }}
             >
-              <Ionicons name="trash-outline" size={20} color="#6b7280" />
+              <Ionicons name="trash-outline" size={20} color={COLORS.tertiary} />
             </TouchableOpacity>
           )}
         </View>
       )}
     >
       <View
-        style={{
-          backgroundColor: 'white',
-          paddingVertical: 10,
-          paddingHorizontal: 14,
-          borderRadius: 10,
-          marginBottom: 10,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.08,
-          shadowRadius: 2,
-          elevation: 1,
-          flexDirection: 'row',
-          alignItems: 'center',
-          ...(item.type === 'deadline' || item.type === 'period' || item.type === 'event'
-            ? {
-                borderRadius: 8,
-                backgroundColor: getItemColor(item) + '10',
-                shadowOpacity: 0.05,
-                elevation: 1,
-              }
-            : {}),
-        }}
+        style={[
+          COMMON_STYLES.card,
+          {
+            paddingVertical: SPACING.md,
+            paddingHorizontal: SPACING.md,
+            marginBottom: SPACING.md,
+            flexDirection: 'row',
+            alignItems: 'center',
+            ...(item.type === 'deadline' || item.type === 'period' || item.type === 'event'
+              ? {
+                  borderRadius: SPACING.sm,
+                  backgroundColor: getItemColor(item) + '10',
+                  shadowOpacity: 0.05,
+                  elevation: 1,
+                }
+              : {}),
+          },
+        ]}
       >
         {/* 할일/반복: 체크박스 → 아이콘 순서, 그 외: 아이콘만 */}
         {item.type === 'todo' || item.type === 'routine' ? (
