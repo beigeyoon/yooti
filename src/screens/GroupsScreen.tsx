@@ -23,6 +23,8 @@ import { Item } from '../types/item';
 import GroupSwipeableCard from '../components/Group/GroupSwipeableCard';
 import GroupEditModal from '../components/Group/GroupEditModal';
 import ItemCard from '../components/Item/ItemCard';
+import EmptyState from '../components/common/EmptyState';
+import { COMMON_STYLES, SPACING, FONT_SIZE, FONT_WEIGHT } from '../theme/styles';
 
 const GROUP_TYPE_OPTIONS = [
   { value: 'flow', label: '순서형' },

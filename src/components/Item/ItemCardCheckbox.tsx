@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, SPACING } from '../../theme/styles';
 
 interface ItemCardCheckboxProps {
   checked: boolean;
@@ -13,12 +14,12 @@ export default function ItemCardCheckbox({ checked, color, onPress }: ItemCardCh
     <TouchableOpacity
       onPress={onPress}
       style={{
-        marginRight: 10,
+        marginRight: SPACING.md,
         width: 20,
         height: 20,
         borderRadius: 4,
         borderWidth: 2,
-        borderColor: checked ? color : '#d1d5db',
+        borderColor: checked ? color : COLORS.border,
         backgroundColor: checked ? color : 'transparent',
         justifyContent: 'center',
         alignItems: 'center',

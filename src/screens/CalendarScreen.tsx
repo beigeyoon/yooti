@@ -15,6 +15,7 @@ import { getItemTypeColor as getTypeColor, getPeriodColor } from '../theme/color
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
+import { COMMON_STYLES, COLORS, SPACING } from '../theme/styles';
 
 dayjs.extend(isBetween);
 dayjs.extend(weekOfYear);

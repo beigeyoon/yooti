@@ -1,5 +1,6 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS, SPACING } from '../../theme/styles';
 
 interface ItemCardIconProps {
   type: string;
@@ -8,10 +9,10 @@ interface ItemCardIconProps {
 
 export default function ItemCardIcon({ type, checked }: ItemCardIconProps) {
   let name: any = 'ellipse-outline';
-  let color = '#9ca3af';
+  let color: string = COLORS.muted;
   if (type === 'todo') {
     name = 'list-outline';
-    color = '#3b82f6';
+    color = COLORS.info;
   } else if (type === 'routine') {
     name = 'repeat-outline';
     color = '#8b5cf6';
@@ -26,7 +27,7 @@ export default function ItemCardIcon({ type, checked }: ItemCardIconProps) {
     color = '#06b6d4';
   }
   if ((type === 'todo' || type === 'routine') && checked) {
-    color = '#9ca3af';
+    color = COLORS.muted;
   }
-  return <Ionicons name={name} size={20} color={color} style={{ marginRight: 10 }} />;
+  return <Ionicons name={name} size={20} color={color} style={{ marginRight: SPACING.md }} />;
 }

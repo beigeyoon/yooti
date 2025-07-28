@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { Group, GroupLink } from '../../types/item';
+import { COLORS, SPACING, FONT_SIZE } from '../../theme/styles';
 
 interface ItemCardGroupsProps {
   itemGroups?: GroupLink[];
@@ -13,8 +14,8 @@ export default function ItemCardGroups({ itemGroups, allGroups }: ItemCardGroups
     <View
       style={{
         flexDirection: 'row',
-        gap: 4,
-        marginLeft: 8,
+        gap: SPACING.xs,
+        marginLeft: SPACING.sm,
         alignItems: 'center',
         justifyContent: 'flex-end',
       }}
@@ -28,14 +29,14 @@ export default function ItemCardGroups({ itemGroups, allGroups }: ItemCardGroups
               backgroundColor: '#e0e7ef',
               paddingHorizontal: 6,
               paddingVertical: 2,
-              borderRadius: 8,
+              borderRadius: SPACING.sm,
               minWidth: 24,
             }}
           >
             <Text
               style={{
-                color: '#374151',
-                fontSize: 10,
+                color: COLORS.secondary,
+                fontSize: FONT_SIZE.xs,
                 lineHeight: 14,
                 textAlignVertical: 'center',
               }}
@@ -52,14 +53,14 @@ export default function ItemCardGroups({ itemGroups, allGroups }: ItemCardGroups
             backgroundColor: '#e0e7ef',
             paddingHorizontal: 6,
             paddingVertical: 2,
-            borderRadius: 8,
+            borderRadius: SPACING.sm,
             minWidth: 24,
           }}
         >
           <Text
             style={{
-              color: '#374151',
-              fontSize: 10,
+              color: COLORS.secondary,
+              fontSize: FONT_SIZE.xs,
               lineHeight: 14,
               textAlignVertical: 'center',
             }}

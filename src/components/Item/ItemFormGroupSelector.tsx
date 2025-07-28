@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Modal } from 'react-native';
 import type { Group, GroupType, GroupLink } from '../../types/item';
+import SelectableButton from '../common/SelectableButton';
+import FormSection from '../common/FormSection';
+import ModalContainer from '../common/ModalContainer';
+import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../../theme/styles';
 
 interface ItemFormGroupSelectorProps {
   groups: Group[];
@@ -34,139 +38,78 @@ export default function ItemFormGroupSelector({
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
-    <View>
-      <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8, lineHeight: 22 }}>
-        그룹 할당
-      </Text>
+    <FormSection title="그룹 할당">
       {groups.length > 0 && (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            gap: SPACING.sm,
+            marginBottom: SPACING.sm,
+          }}
+        >
           {groups.map(group => {
             const selected = selectedGroups.find(g => g.groupId === group.id);
             return (
-              <TouchableOpacity
+              <SelectableButton
                 key={group.id}
+                label={group.title}
+                value={group.id}
+                isSelected={!!selected}
                 onPress={() => onToggleGroup(group)}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
-                  borderRadius: 16,
-                  borderWidth: 1,
-                  borderColor: selected ? '#000' : '#d1d5db',
-                  backgroundColor: selected ? '#000' : 'white',
-                }}
-              >
-                <Text style={{ color: selected ? 'white' : '#374151' }}>{group.title}</Text>
-              </TouchableOpacity>
+              />
             );
           })}
         </View>
       )}
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
-        style={{
-          marginBottom: 8,
-          paddingVertical: 6,
-          paddingHorizontal: 12,
-          borderRadius: 8,
-          borderWidth: 1,
-          borderColor: '#d1d5db',
-          backgroundColor: '#f3f4f6',
-          alignSelf: 'flex-start',
-        }}
+        style={[
+          COMMON_STYLES.button,
+          COMMON_STYLES.buttonSecondary,
+          {
+            marginBottom: SPACING.sm,
+            alignSelf: 'flex-start',
+            backgroundColor: COLORS.inputBackground,
+          },
+        ]}
       >
-        <Text style={{ color: '#374151', fontWeight: '600', fontSize: 15 }}>+ 새 그룹 만들기</Text>
+        <Text style={[COMMON_STYLES.buttonText, COMMON_STYLES.buttonTextSecondary]}>
+          + 새 그룹 만들기
+        </Text>
       </TouchableOpacity>
-      <Modal
-        visible={modalVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={{ flex: 1, position: 'relative' }}>
-          {/* dim 배경 */}
-          <View
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: 'rgba(0,0,0,0.2)',
+      <ModalContainer visible={modalVisible} onClose={() => setModalVisible(false)} width={320}>
+        <Text style={COMMON_STYLES.sectionTitle}>새 그룹 만들기</Text>
+        <TextInput
+          value={newGroupName}
+          onChangeText={setNewGroupName}
+          placeholder="그룹명"
+          style={[COMMON_STYLES.input, { marginBottom: SPACING.sm }]}
+        />
+        <TextInput
+          value={newGroupDesc}
+          onChangeText={setNewGroupDesc}
+          placeholder="설명 (선택)"
+          style={[COMMON_STYLES.input, { marginBottom: SPACING.lg }]}
+        />
+        <View style={[COMMON_STYLES.row, { justifyContent: 'flex-end', gap: SPACING.sm }]}>
+          <TouchableOpacity
+            onPress={() => setModalVisible(false)}
+            style={[COMMON_STYLES.button, { backgroundColor: COLORS.muted }]}
+          >
+            <Text style={[COMMON_STYLES.buttonText, { color: COLORS.secondary }]}>취소</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              onCreateGroup();
+              setModalVisible(false);
             }}
-          />
-          {/* 모달 컨텐츠 */}
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <View
-              style={{
-                backgroundColor: 'white',
-                padding: 24,
-                borderRadius: 16,
-                width: 320,
-                shadowColor: '#000',
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-              }}
-            >
-              <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 12 }}>
-                새 그룹 만들기
-              </Text>
-              <TextInput
-                value={newGroupName}
-                onChangeText={setNewGroupName}
-                placeholder="그룹명"
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#d1d5db',
-                  borderRadius: 8,
-                  padding: 10,
-                  fontSize: 15,
-                  marginBottom: 8,
-                }}
-              />
-              <TextInput
-                value={newGroupDesc}
-                onChangeText={setNewGroupDesc}
-                placeholder="설명 (선택)"
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#d1d5db',
-                  borderRadius: 8,
-                  padding: 10,
-                  fontSize: 15,
-                  marginBottom: 8,
-                }}
-              />
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 8 }}>
-                <TouchableOpacity
-                  onPress={() => setModalVisible(false)}
-                  style={{
-                    paddingVertical: 10,
-                    paddingHorizontal: 18,
-                    borderRadius: 8,
-                    backgroundColor: '#e5e7eb',
-                  }}
-                >
-                  <Text style={{ color: '#374151', fontWeight: '600' }}>취소</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    onCreateGroup();
-                    setModalVisible(false);
-                  }}
-                  style={{
-                    paddingVertical: 10,
-                    paddingHorizontal: 18,
-                    borderRadius: 8,
-                    backgroundColor: '#d1d5db',
-                  }}
-                >
-                  <Text style={{ color: '#374151', fontWeight: '600' }}>그룹 생성</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+            style={[COMMON_STYLES.button, { backgroundColor: COLORS.border }]}
+          >
+            <Text style={[COMMON_STYLES.buttonText, { color: COLORS.secondary }]}>그룹 생성</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </ModalContainer>
+    </FormSection>
   );
 }

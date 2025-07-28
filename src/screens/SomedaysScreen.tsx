@@ -7,6 +7,8 @@ import { Item } from '../types/item';
 import ItemCard from '../components/Item/ItemCard';
 import { useItemActions } from '../components/Item/useItemActions';
 import { Ionicons } from '@expo/vector-icons';
+import EmptyState from '../components/common/EmptyState';
+import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../theme/styles';
 
 const { width } = Dimensions.get('window');
 const SWIPE_THRESHOLD = 30;
@@ -36,21 +38,19 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
   const { handleDelete, handleToggleCheck, handleEdit } = useItemActions(onEditItem);
 
   const renderTypeSection = (type: string, items: any[]) => (
-    <View key={type} style={{ marginBottom: 24 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+    <View key={type} style={{ marginBottom: SPACING.xxl }}>
+      <View style={[COMMON_STYLES.row, { marginBottom: SPACING.md }]}>
         <View
           style={{
             width: 4,
             height: 20,
             backgroundColor: getTypeColor(type),
             borderRadius: 2,
-            marginRight: 8,
+            marginRight: SPACING.sm,
           }}
         />
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#111827' }}>
-          {getTypeLabel(type)}
-        </Text>
-        <Text style={{ fontSize: 14, color: '#6b7280', marginLeft: 8 }}>({items.length})</Text>
+        <Text style={COMMON_STYLES.sectionTitle}>{getTypeLabel(type)}</Text>
+        <Text style={[COMMON_STYLES.caption, { marginLeft: SPACING.sm }]}>({items.length})</Text>
       </View>
       {items.map(item => (
         <ItemCard
@@ -68,25 +68,14 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+    <View style={[COMMON_STYLES.container, { backgroundColor: COLORS.background }]}>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: SPACING.lg }}>
         {somedayItems.length === 0 ? (
-          <View
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              paddingVertical: 60,
-            }}
-          >
-            <Ionicons name="calendar-outline" size={64} color="#d1d5db" />
-            <Text style={{ fontSize: 18, color: '#6b7280', marginTop: 16, textAlign: 'center' }}>
-              언젠가 할 일이 없습니다
-            </Text>
-            <Text style={{ fontSize: 14, color: '#9ca3af', marginTop: 8, textAlign: 'center' }}>
-              새로운 아이템을 만들 때 '언젠가'를 선택하면{'\n'}여기에 표시됩니다
-            </Text>
-          </View>
+          <EmptyState
+            icon="calendar-outline"
+            title="언젠가 할 일이 없습니다"
+            subtitle="새로운 아이템을 만들 때 '언젠가'를 선택하면 여기에 표시됩니다"
+          />
         ) : (
           Object.entries(groupedItems)
             .sort(([a], [b]) => {
