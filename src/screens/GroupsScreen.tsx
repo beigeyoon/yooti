@@ -8,8 +8,9 @@ import {
   Modal,
   TextInput,
   Dimensions,
+  Platform,
 } from 'react-native';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -25,6 +26,7 @@ import GroupEditModal from '../components/Group/GroupEditModal';
 import ItemCard from '../components/Item/ItemCard';
 import EmptyState from '../components/common/EmptyState';
 import { COMMON_STYLES, SPACING, FONT_SIZE, FONT_WEIGHT } from '../theme/styles';
+import ConfirmModal from '../components/common/ConfirmModal';
 
 const GROUP_TYPE_OPTIONS = [
   { value: 'flow', label: '순서형' },
@@ -53,9 +55,23 @@ export default function GroupsScreen() {
     type: 'custom' as GroupType,
   });
 
+  // 그룹 삭제 확인 모달 상태
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
+    visible: boolean;
+    groupId: string;
+  }>({
+    visible: false,
+    groupId: '',
+  });
+
   const handleCreateGroup = () => {
     if (!newGroup.title.trim()) {
-      Alert.alert('오류', '그룹명을 입력하세요');
+      if (Platform.OS === 'web') {
+        // 웹에서는 간단한 alert 사용 (브라우저 기본 alert)
+        alert('그룹명을 입력하세요');
+      } else {
+        Alert.alert('오류', '그룹명을 입력하세요');
+      }
       return;
     }
     const group = {
@@ -78,10 +94,28 @@ export default function GroupsScreen() {
   };
 
   const handleDelete = (id: string) => {
-    Alert.alert('그룹 삭제', '정말로 이 그룹을 삭제하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      { text: '삭제', style: 'destructive', onPress: () => deleteGroup(id) },
-    ]);
+    if (Platform.OS === 'web') {
+      // 웹에서는 커스텀 모달 사용
+      setDeleteConfirmModal({
+        visible: true,
+        groupId: id,
+      });
+    } else {
+      // 모바일에서는 기존 Alert 사용
+      Alert.alert('그룹 삭제', '정말로 이 그룹을 삭제하시겠습니까?', [
+        { text: '취소', style: 'cancel' },
+        { text: '삭제', style: 'destructive', onPress: () => deleteGroup(id) },
+      ]);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteGroup(deleteConfirmModal.groupId);
+    setDeleteConfirmModal({ visible: false, groupId: '' });
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteConfirmModal({ visible: false, groupId: '' });
   };
 
   const handleEdit = (group: {
@@ -299,6 +333,17 @@ export default function GroupsScreen() {
         onChange={patch => setNewGroup(prev => ({ ...prev, ...patch }))}
         onClose={() => setCreateModalVisible(false)}
         onSubmit={handleCreateGroup}
+      />
+      {/* 그룹 삭제 확인 모달 */}
+      <ConfirmModal
+        visible={deleteConfirmModal.visible}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+        title="그룹 삭제"
+        message={`정말로 "${groups.find(g => g.id === deleteConfirmModal.groupId)?.title}" 그룹을 삭제하시겠습니까?`}
+        confirmText="삭제"
+        cancelText="취소"
+        destructive={true}
       />
     </View>
   );

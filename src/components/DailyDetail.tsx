@@ -18,7 +18,8 @@ interface DailyDetailProps {
 export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailProps) {
   const { items, groups, deleteItem, deleteRoutineGroup, updateItem } = useTimeStore();
 
-  const { handleDelete, handleToggleCheck, handleEdit } = useItemActions(onEditItem);
+  const { handleDelete, handleToggleCheck, handleEdit, ConfirmModalComponent } =
+    useItemActions(onEditItem);
 
   const selectedDateItems = selectedDate
     ? sortPeriodItemsByStartDate(getItemsForDateSorted(items, selectedDate))
@@ -34,44 +35,15 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
 
   return (
     <View style={[COMMON_STYLES.container, { backgroundColor: COLORS.white, padding: SPACING.lg }]}>
-      <View style={[COMMON_STYLES.rowSpaceBetween, { marginBottom: SPACING.md }]}>
-        <View style={COMMON_STYLES.row}>
-          <Text style={[COMMON_STYLES.subtitle, { marginBottom: 0 }]}>
-            {(() => {
-              const date = selectedDate ? dayjs(selectedDate) : dayjs();
-              const days = ['일', '월', '화', '수', '목', '금', '토'];
-              return date.format('M월 D일') + ' (' + days[date.day()] + ')';
-            })()}
-          </Text>
-          {(() => {
-            const date = selectedDate ? dayjs(selectedDate) : dayjs();
-            const today = dayjs();
-            return date.isSame(today, 'day') ? (
-              <View
-                style={{
-                  backgroundColor: COLORS.primary,
-                  paddingHorizontal: SPACING.sm,
-                  paddingVertical: 3,
-                  borderRadius: 12,
-                  marginLeft: SPACING.sm,
-                  marginTop: 1,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: FONT_SIZE.xs,
-                    color: COLORS.white,
-                    fontWeight: FONT_WEIGHT.medium,
-                  }}
-                >
-                  오늘
-                </Text>
-              </View>
-            ) : null;
-          })()}
-        </View>
+      {/* 제목 */}
+      <View style={[COMMON_STYLES.rowSpaceBetween]}>
+        <Text style={COMMON_STYLES.title}>
+          {selectedDate ? dayjs(selectedDate).format('M월 D일') : '오늘'}
+        </Text>
+        <Text style={COMMON_STYLES.caption}>{selectedDateItems.length}개의 아이템</Text>
       </View>
 
+      {/* 아이템 목록 */}
       {selectedDateItems.length === 0 ? (
         <EmptyState
           icon="calendar-outline"
@@ -97,6 +69,9 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
           ))}
         </ScrollView>
       )}
+
+      {/* 확인 모달 */}
+      <ConfirmModalComponent />
     </View>
   );
 }

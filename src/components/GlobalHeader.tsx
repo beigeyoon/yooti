@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, Alert, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Platform, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface GlobalHeaderProps {
@@ -17,9 +17,18 @@ export default function GlobalHeader({
 }: GlobalHeaderProps) {
   const [menuVisible, setMenuVisible] = useState(false);
 
+  const showAlert = (title: string, message: string) => {
+    if (Platform.OS === 'web') {
+      // 웹에서는 브라우저 기본 alert 사용
+      alert(`${title}: ${message}`);
+    } else {
+      // 모바일에서는 React Native Alert 사용
+      Alert.alert(title, message);
+    }
+  };
+
   return (
     <>
-      {/* 전역 헤더 */}
       <View
         style={{
           flexDirection: 'row',
@@ -91,7 +100,7 @@ export default function GlobalHeader({
                 if (onNavigateToGroups) {
                   onNavigateToGroups();
                 } else {
-                  Alert.alert('Groups', 'Groups 기능이 곧 추가됩니다.');
+                  showAlert('Groups', 'Groups 기능이 곧 추가됩니다.');
                 }
               }}
             >
@@ -105,7 +114,7 @@ export default function GlobalHeader({
                 if (onNavigateToSomeday) {
                   onNavigateToSomeday();
                 } else {
-                  Alert.alert('Somedays', 'Somedays 기능이 곧 추가됩니다.');
+                  showAlert('Somedays', 'Somedays 기능이 곧 추가됩니다.');
                 }
               }}
             >
@@ -116,7 +125,7 @@ export default function GlobalHeader({
               style={{ paddingVertical: 12, paddingHorizontal: 16 }}
               onPress={() => {
                 setMenuVisible(false);
-                Alert.alert('Settings', 'Settings 기능이 곧 추가됩니다.');
+                showAlert('Settings', 'Settings 기능이 곧 추가됩니다.');
               }}
             >
               <Text style={{ fontSize: 16, color: '#333' }}>Settings</Text>

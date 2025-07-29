@@ -23,7 +23,7 @@ dayjs.extend(weekOfYear);
 const { width, height } = Dimensions.get('window');
 const AVAILABLE_HEIGHT = height - 56 - 25 - 2;
 const CELL_WIDTH = (width - 16) / 7;
-const CELL_HEIGHT = CELL_WIDTH * 1.1; // 가로:세로 비율 1:1.1
+const CELL_HEIGHT = typeof window !== 'undefined' ? CELL_WIDTH : CELL_WIDTH * 1.1; // 웹에서는 정사각형(1:1), 모바일에서는 1:1.1 비율
 const CELL_SIZE = Math.min(CELL_WIDTH, AVAILABLE_HEIGHT / 4);
 
 interface CalendarScreenProps {

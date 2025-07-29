@@ -35,7 +35,8 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
     {} as Record<string, typeof items>,
   );
 
-  const { handleDelete, handleToggleCheck, handleEdit } = useItemActions(onEditItem);
+  const { handleDelete, handleToggleCheck, handleEdit, ConfirmModalComponent } =
+    useItemActions(onEditItem);
 
   const renderTypeSection = (type: string, items: any[]) => (
     <View key={type} style={{ marginBottom: SPACING.xxl }}>
@@ -89,6 +90,9 @@ export default function SomedaysScreen({ onEditItem }: SomedaysScreenProps) {
             .map(([type, items]) => renderTypeSection(type, items))
         )}
       </ScrollView>
+
+      {/* 확인 모달 */}
+      <ConfirmModalComponent />
     </View>
   );
 }

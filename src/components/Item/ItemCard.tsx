@@ -102,62 +102,71 @@ export default function ItemCard({
 
         {/* 제목/내용 */}
         <View style={{ flex: 1, flexDirection: 'column', minWidth: 0 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', minWidth: 0 }}>
-            <Text
-              style={{
-                fontSize: 15,
-                fontWeight: '600',
-                color: '#111827',
-                lineHeight: 22,
-                textAlignVertical: 'center',
-                ...((item.type === 'todo' || item.type === 'routine') && item.checked
-                  ? {
-                      textDecorationLine: 'line-through',
-                      color: '#9ca3af',
-                    }
-                  : {}),
-                ...(item.type === 'deadline' || item.type === 'period' || item.type === 'event'
-                  ? { color: getItemColor(item) }
-                  : {}),
-                flexShrink: 1,
-              }}
-              numberOfLines={1}
-            >
-              {item.title}
-            </Text>
-            {/* 이벤트/기간형: 타이틀 옆에 소형 회색 텍스트 (sibling) */}
-            {item.type === 'event' && (item.startTime || item.endTime) && (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              minWidth: 0,
+              justifyContent: 'space-between',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, minWidth: 0 }}>
               <Text
                 style={{
-                  fontSize: 12,
-                  color: '#6b7280',
-                  fontWeight: 'normal',
-                  lineHeight: 16,
-                  marginLeft: 5,
+                  fontSize: 15,
+                  fontWeight: '600',
+                  color: '#111827',
+                  lineHeight: 22,
+                  textAlignVertical: 'center',
+                  ...((item.type === 'todo' || item.type === 'routine') && item.checked
+                    ? {
+                        textDecorationLine: 'line-through',
+                        color: '#9ca3af',
+                      }
+                    : {}),
+                  ...(item.type === 'deadline' || item.type === 'period' || item.type === 'event'
+                    ? { color: getItemColor(item) }
+                    : {}),
+                  flexShrink: 1,
                 }}
                 numberOfLines={1}
               >
-                {item.startTime && item.endTime
-                  ? `${item.startTime} - ${item.endTime}`
-                  : item.startTime
-                    ? `${item.startTime}`
-                    : `${item.endTime}`}
+                {item.title}
               </Text>
-            )}
-            {item.type === 'period' && item.startDate && item.endDate && (
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: '#6b7280',
-                  fontWeight: 'normal',
-                  lineHeight: 16,
-                  marginLeft: 5,
-                }}
-                numberOfLines={1}
-              >
-                {item.startDate} ~ {item.endDate}
-              </Text>
-            )}
+              {/* 이벤트/기간형: 타이틀 옆에 소형 회색 텍스트 (sibling) */}
+              {item.type === 'event' && (item.startTime || item.endTime) && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#6b7280',
+                    fontWeight: 'normal',
+                    lineHeight: 16,
+                    marginLeft: 5,
+                  }}
+                  numberOfLines={1}
+                >
+                  {item.startTime && item.endTime
+                    ? `${item.startTime} - ${item.endTime}`
+                    : item.startTime
+                      ? `${item.startTime}`
+                      : `${item.endTime}`}
+                </Text>
+              )}
+              {item.type === 'period' && item.startDate && item.endDate && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: '#6b7280',
+                    fontWeight: 'normal',
+                    lineHeight: 16,
+                    marginLeft: 5,
+                  }}
+                  numberOfLines={1}
+                >
+                  {item.startDate} ~ {item.endDate}
+                </Text>
+              )}
+            </View>
             {/* 그룹명 칩 (우측 끝 정렬) */}
             <ItemCardGroups itemGroups={item.groups} allGroups={groups} />
           </View>

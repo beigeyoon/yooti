@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
+import { View, TouchableOpacity, Text, Platform } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -30,6 +30,7 @@ export default function GroupSwipeableCard({
 }: GroupSwipeableCardProps) {
   const SWIPE_THRESHOLD = 30;
   const translateX = useSharedValue(0);
+
   const gestureHandler = useAnimatedGestureHandler({
     onStart: (_, context: any) => {
       context.startX = translateX.value;
@@ -46,9 +47,11 @@ export default function GroupSwipeableCard({
       }
     },
   });
+
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
+
   const actionButtonsStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value + 120 }],
     opacity: translateX.value < -10 ? 1 : 0,
@@ -59,6 +62,41 @@ export default function GroupSwipeableCard({
     related: '연관형',
     dependency: '의존형',
     custom: '커스텀',
+  };
+
+  // 웹에서 터치 이벤트 처리
+  const handleTouchStart = (e: any) => {
+    if (Platform.OS === 'web') {
+      const touch = e.touches?.[0] || e;
+      const startX = touch.clientX;
+      const startTranslateX = translateX.value;
+
+      const handleTouchMove = (e: any) => {
+        const touch = e.touches?.[0] || e;
+        const currentX = touch.clientX;
+        const deltaX = currentX - startX;
+        const newTranslateX = startTranslateX + deltaX;
+        translateX.value = Math.min(0, Math.max(-120, newTranslateX));
+      };
+
+      const handleTouchEnd = (e: any) => {
+        const touch = e.changedTouches?.[0] || e;
+        const currentX = touch.clientX;
+        const deltaX = currentX - startX;
+
+        if (deltaX < -SWIPE_THRESHOLD) {
+          translateX.value = -120;
+        } else {
+          translateX.value = 0;
+        }
+
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      };
+
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
+    }
   };
 
   return (
@@ -103,9 +141,13 @@ export default function GroupSwipeableCard({
           <Ionicons name="trash-outline" size={20} color={COLORS.ui.text.tertiary} />
         </TouchableOpacity>
       </Animated.View>
+
       {/* 전체(카드+아코디언) 슬라이드 */}
       <PanGestureHandler onGestureEvent={gestureHandler}>
-        <Animated.View style={[{ zIndex: 2 }, animatedStyle]}>
+        <Animated.View
+          style={[{ zIndex: 2 }, animatedStyle]}
+          onTouchStart={Platform.OS === 'web' ? handleTouchStart : undefined}
+        >
           {/* 메인 그룹 카드 */}
           <View
             style={{

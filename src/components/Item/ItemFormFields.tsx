@@ -284,10 +284,20 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                     marginTop: SPACING.xl,
                     marginBottom: 0,
                     gap: SPACING.sm,
+                    alignItems: 'center',
                   },
                 ]}
               >
-                <Text style={COMMON_STYLES.sectionTitle}>완료 여부</Text>
+                <Text
+                  style={{
+                    fontSize: FONT_SIZE.xl,
+                    fontWeight: FONT_WEIGHT.semibold,
+                    color: COLORS.secondary,
+                    lineHeight: 22,
+                  }}
+                >
+                  완료 여부
+                </Text>
                 <TouchableOpacity
                   onPress={() => props.setChecked && props.setChecked(!props.checked)}
                   activeOpacity={0.7}
