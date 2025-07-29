@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.yooti"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +24,18 @@
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "lang": "ko",
+      "meta": {
+        "lang": "ko",
+        "charset": "utf-8",
+        "viewport": "width=device-width, initial-scale=1, shrink-to-fit=no"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5e3e9533-1021-4a02-82a2-140c52c00639"
+      }
     }
   }
 }
