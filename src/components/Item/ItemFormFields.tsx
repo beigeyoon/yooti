@@ -1,13 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import dayjs from 'dayjs';
 import DateInput from './DateInput';
 import SelectableButton from '../common/SelectableButton';
 import FormSection from '../common/FormSection';
 import ItemFormGroupSelector from './ItemFormGroupSelector';
+import SubItemForm from './SubItemForm';
 import { COMMON_STYLES, COLORS, SPACING, FONT_SIZE, FONT_WEIGHT } from '../../theme/styles';
-import type { Group, GroupType, GroupLink } from '../../types/item';
+import type { Group, GroupType, GroupLink, SubItem } from '../../types/item';
 
 interface ItemFormFieldsProps {
   title: string;
@@ -50,6 +50,9 @@ interface ItemFormFieldsProps {
   setNote: (v: string) => void;
   checked: boolean;
   setChecked: (v: boolean) => void;
+  // 다중 할일 항목 관련 props
+  subItems: SubItem[];
+  setSubItems: (v: SubItem[]) => void;
   // 그룹 관련 props
   groups: Group[];
   selectedGroups: GroupLink[];
@@ -318,6 +321,17 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
                   </View>
                 </TouchableOpacity>
               </View>
+
+              {/* 다중 할일 항목 (todo 타입일 때만 표시) */}
+              {props.type === 'todo' && (
+                <FormSection title="하위 체크리스트">
+                  <SubItemForm
+                    subItems={props.subItems}
+                    onChange={props.setSubItems}
+                    onParentCheckChange={checked => props.setChecked(checked)}
+                  />
+                </FormSection>
+              )}
             </>
           )}
         </>

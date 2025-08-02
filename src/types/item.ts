@@ -2,6 +2,13 @@ export type ItemType = 'event' | 'todo' | 'routine' | 'deadline' | 'period';
 
 export type RepeatCycle = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
+export interface SubItem {
+  id: string;
+  title: string;
+  checked: boolean;
+  createdAt: string;
+}
+
 export interface Item {
   id: string;
   title: string;
@@ -15,6 +22,7 @@ export interface Item {
   groups?: GroupLink[];
   note?: string;
   checked?: boolean; // ✅ todo 전용
+  subItems?: SubItem[]; // 다중 할일 항목
   createdAt: string;
 }
 

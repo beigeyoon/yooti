@@ -9,6 +9,7 @@ import { Group, GroupType, GroupLink } from '../../types/item';
 import ItemFormFields from './ItemFormFields';
 import ItemFormFooter from './ItemFormFooter';
 import WebDatePickerModal from './WebDatePickerModal';
+import SubItemForm from './SubItemForm';
 import { COMMON_STYLES, COLORS, SPACING } from '../../theme/styles';
 
 interface ItemFormProps {
@@ -42,6 +43,7 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   const [endTime, setEndTime] = useState<string>(editingItem?.endTime || '');
   const [repeat, setRepeat] = useState<RepeatCycle | undefined>(editingItem?.repeat);
   const [checked, setChecked] = useState(editingItem?.checked || false);
+  const [subItems, setSubItems] = useState(editingItem?.subItems || []);
   const [note, setNote] = useState(editingItem?.note || '');
   const [isSomeday, setIsSomeday] = useState(false);
 
@@ -151,6 +153,7 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         endTime: isSomeday ? undefined : endTime || undefined,
         repeat,
         checked,
+        subItems: subItems.length > 0 ? subItems : undefined,
         note: note.trim() || undefined,
         groups: groupLinks,
       };
@@ -166,6 +169,7 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         endTime: isSomeday ? undefined : endTime || undefined,
         repeat,
         checked,
+        subItems: subItems.length > 0 ? subItems : undefined,
         note: note.trim() || undefined,
         groups: groupLinks,
       };
@@ -322,6 +326,9 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
         setNote={setNote}
         checked={checked}
         setChecked={setChecked}
+        // 다중 할일 항목 관련 props
+        subItems={subItems}
+        setSubItems={setSubItems}
         // 그룹 관련 props
         groups={groups}
         selectedGroups={selectedGroups}

@@ -8,7 +8,9 @@ export function isTodo(
 
 // nanoid 대신 간단한 ID 생성 함수
 function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+  const timestamp = Date.now();
+  const random = Math.floor(Math.random() * 1000000);
+  return `${timestamp}-${random}`;
 }
 
 export function createItem(raw: Omit<Item, 'id' | 'createdAt'>): Item {

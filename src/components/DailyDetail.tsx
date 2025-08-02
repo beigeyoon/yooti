@@ -21,6 +21,27 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
   const { handleDelete, handleToggleCheck, handleEdit, ConfirmModalComponent } =
     useItemActions(onEditItem);
 
+  const handleToggleSubItem = (itemId: string, subItemId: string) => {
+    const item = items.find(i => i.id === itemId);
+    if (item && item.subItems) {
+      const updatedSubItems = item.subItems.map(subItem =>
+        subItem.id === subItemId ? { ...subItem, checked: !subItem.checked } : subItem,
+      );
+
+      // 모든 하위 항목이 체크되었는지 확인
+      const allSubItemsChecked = updatedSubItems.every(subItem => subItem.checked);
+
+      // 모든 하위 항목이 체크된 경우에만 상위 항목을 체크
+      const updatedItem = {
+        ...item,
+        subItems: updatedSubItems,
+        checked: allSubItemsChecked ? true : item.checked, // 기존 체크 상태 유지
+      };
+
+      updateItem(itemId, updatedItem);
+    }
+  };
+
   const selectedDateItems = selectedDate
     ? sortPeriodItemsByStartDate(getItemsForDateSorted(items, selectedDate))
     : sortPeriodItemsByStartDate(getItemsForDateSorted(items, dayjs().format('YYYY-MM-DD')));
@@ -63,6 +84,7 @@ export default function DailyDetail({ selectedDate, onEditItem }: DailyDetailPro
               onEdit={handleEdit}
               onDelete={handleDelete}
               onToggleCheck={handleToggleCheck}
+              onToggleSubItem={handleToggleSubItem}
               getItemColor={getItemColor}
               groups={groups}
             />
