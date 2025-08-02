@@ -45,7 +45,13 @@ export default function ItemForm({ onSubmit, onCancel, editingItem, presetDate }
   const [checked, setChecked] = useState(editingItem?.checked || false);
   const [subItems, setSubItems] = useState(editingItem?.subItems || []);
   const [note, setNote] = useState(editingItem?.note || '');
-  const [isSomeday, setIsSomeday] = useState(false);
+  const [isSomeday, setIsSomeday] = useState(() => {
+    // 편집 중인 아이템이 있고, 시작일과 종료일이 모두 없으면 언젠가로 간주
+    if (editingItem) {
+      return !editingItem.startDate && !editingItem.endDate;
+    }
+    return false;
+  });
 
   // Date picker states
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);

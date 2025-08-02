@@ -263,77 +263,82 @@ export default function ItemFormFields(props: ItemFormFieldsProps) {
           )}
           {props.type === 'todo' && (
             <>
-              {/* 완료 예정일 */}
-              <FormSection title="완료 예정일">
-                <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
-                  <DateInput
-                    label="완료 예정일"
-                    value={props.endDate}
-                    placeholder="완료 예정일"
-                    onPress={() =>
-                      Platform.OS === 'web'
-                        ? props.setShowWebEndDatePicker(true)
-                        : props.setShowEndDatePicker(true)
-                    }
-                    onChange={props.setEndDate}
-                  />
-                </View>
-              </FormSection>
-              {/* 완료 여부 */}
-              <View
-                style={[
-                  COMMON_STYLES.row,
-                  {
-                    marginTop: SPACING.xl,
-                    marginBottom: 0,
-                    gap: SPACING.sm,
-                    alignItems: 'center',
-                  },
-                ]}
-              >
-                <Text
-                  style={{
-                    fontSize: FONT_SIZE.xl,
-                    fontWeight: FONT_WEIGHT.semibold,
-                    color: COLORS.secondary,
-                    lineHeight: 22,
-                  }}
-                >
-                  완료 여부
-                </Text>
-                <TouchableOpacity
-                  onPress={() => props.setChecked && props.setChecked(!props.checked)}
-                  activeOpacity={0.7}
-                >
-                  <View
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 4,
-                      borderWidth: 2,
-                      borderColor: props.checked ? COLORS.primary : COLORS.border,
-                      backgroundColor: props.checked ? COLORS.primary : 'transparent',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    {props.checked && <Ionicons name="checkmark" size={14} color="white" />}
+              {/* 완료 예정일 (언젠가가 아닐 때만 표시) */}
+              {!props.isSomeday && (
+                <FormSection title="완료 예정일">
+                  <View style={{ flexDirection: 'row', gap: SPACING.sm }}>
+                    <DateInput
+                      label="완료 예정일"
+                      value={props.endDate}
+                      placeholder="완료 예정일"
+                      onPress={() =>
+                        Platform.OS === 'web'
+                          ? props.setShowWebEndDatePicker(true)
+                          : props.setShowEndDatePicker(true)
+                      }
+                      onChange={props.setEndDate}
+                    />
                   </View>
-                </TouchableOpacity>
-              </View>
-
-              {/* 다중 할일 항목 (todo 타입일 때만 표시) */}
-              {props.type === 'todo' && (
-                <FormSection title="하위 체크리스트">
-                  <SubItemForm
-                    subItems={props.subItems}
-                    onChange={props.setSubItems}
-                    onParentCheckChange={checked => props.setChecked(checked)}
-                  />
                 </FormSection>
               )}
             </>
           )}
+        </>
+      )}
+      {/* todo 타입 전용 필드들 (언젠가와 관계없이 항상 표시) */}
+      {props.type === 'todo' && (
+        <>
+          {/* 완료 여부 */}
+          <View
+            style={[
+              COMMON_STYLES.row,
+              {
+                marginTop: SPACING.xl,
+                marginBottom: 0,
+                gap: SPACING.sm,
+                alignItems: 'center',
+              },
+            ]}
+          >
+            <Text
+              style={{
+                fontSize: FONT_SIZE.xl,
+                fontWeight: FONT_WEIGHT.semibold,
+                color: COLORS.secondary,
+                lineHeight: 22,
+              }}
+            >
+              완료 여부
+            </Text>
+            <TouchableOpacity
+              onPress={() => props.setChecked && props.setChecked(!props.checked)}
+              activeOpacity={0.7}
+            >
+              <View
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 4,
+                  borderWidth: 2,
+                  borderColor: props.checked ? COLORS.primary : COLORS.border,
+                  backgroundColor: props.checked ? COLORS.primary : 'transparent',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {props.checked && <Ionicons name="checkmark" size={14} color="white" />}
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          {/* 다중 할일 항목 (todo 타입일 때만 표시) */}
+          <FormSection title="하위 체크리스트">
+            <SubItemForm
+              subItems={props.subItems}
+              onChange={props.setSubItems}
+              onParentCheckChange={checked => props.setChecked(checked)}
+            />
+          </FormSection>
         </>
       )}
       {/* 반복 선택: type이 'routine'일 때만 표시 */}
